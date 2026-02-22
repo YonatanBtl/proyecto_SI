@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # PostgreSQL - Base de datos principal
+  postgres:
+    image: postgres:15-alpine
+    container_name: practicas_db
+    environment:
+      POSTGRES_DB: practicas_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    mem_limit: 512m
+    mem_reservation: 256m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d practicas_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # n8n - Orquestador
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: practicas_n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin123
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/Lima
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 1g
+    mem_reservation: 512m
+    restart: unless-stopped
+
+  # API Python - Agentes Inteligentes
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: practicas_api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://admin:admin123@postgres:5432/practicas_db
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./api:/app
+      - ./data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 2g
+    mem_reservation: 1g
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  default:
+    name: practicas_network
