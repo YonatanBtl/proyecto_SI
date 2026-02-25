@@ -1,51 +1,51 @@
 nombre,area,descripcion,requisitos,carreras_aceptadas,experiencia_minima,horas_requeridas,salario,ubicacion,lat,lng,modalidad,tipo,fecha_limite,activa
-Pragma Tech Peru,Desarrollo Software,Consultora tecnológica líder en transformación digital,docker|flask|react,Ing. Sistemas|Ing. Software,0,30,1334,San Miguel,-12.0773,-77.0924,hibrido,practica,2026-04-12,True
-Nubelo Solutions SAC,Desarrollo Software,Desarrollo de software a medida para empresas,sql|aws,Ing. Sistemas|Ing. Software,3,35,2443,Chorrillos,-12.1717,-77.0169,remoto,practica,2026-04-05,True
-InkaCode Labs,Desarrollo Software,Startup de desarrollo web y móvil,python|git|django|node.js|javascript,Ing. Sistemas|Ing. Software,6,30,1594,Lince,-12.0821,-77.0386,remoto,practica,2026-04-12,True
-Syscom Peru SAC,Desarrollo Software,Sistemas informáticos empresariales,node.js|django|aws,Ing. Sistemas|Ing. Software,0,25,1942,Pueblo Libre,-12.074,-77.0635,remoto,practica,2026-03-24,True
-Evol Software,Desarrollo Software,Soluciones de software escalables,flask|sql|aws|react|python,Ing. Sistemas|Ing. Software,3,30,2121,Pueblo Libre,-12.074,-77.0635,hibrido,practica,2026-05-01,True
-Auna Digital,Desarrollo Software,Tecnología aplicada al sector salud,django|node.js|sql|react,Ing. Sistemas|Ing. Software,12,35,2327,Magdalena,-12.0907,-77.0747,hibrido,practica,2026-04-04,True
-Interbank Tech,Desarrollo Software,Área tecnológica del sector financiero,node.js|docker|javascript|git,Ing. Sistemas|Ing. Software,6,30,1485,Miraflores,-12.119,-77.0349,remoto,practica,2026-05-07,True
-Rimac Digital,Desarrollo Software,Transformación digital en seguros,sql|git|django|javascript,Ing. Sistemas|Ing. Software,0,25,2325,Barranco,-12.1453,-77.021,hibrido,practica,2026-06-14,True
-BCP Tecnología,Desarrollo Software,Equipo de innovación bancaria,aws|react|javascript,Ing. Sistemas|Ing. Software,0,25,1974,San Borja,-12.0919,-77.0011,remoto,practica,2026-05-15,True
-Yape Developers,Desarrollo Software,Billetera digital y pagos móviles,python|flask|node.js|javascript,Ing. Sistemas|Ing. Software,0,25,1687,San Borja,-12.0919,-77.0011,presencial,practica,2026-03-23,True
-Datum Inteligencia,Data Science,Analítica de datos y business intelligence,sql|numpy|pandas,Ing. Sistemas|Ing. Industrial|Economía,6,25,1239,Miraflores,-12.119,-77.0349,presencial,practica,2026-04-18,True
-Analytics Peru,Data Science,Ciencia de datos aplicada a negocios,sql|numpy|machine learning|power bi|pandas,Ing. Sistemas|Ing. Industrial|Economía,12,25,1921,Miraflores,-12.119,-77.0349,hibrido,practica,2026-04-24,True
-AI Andina SAC,Data Science,Inteligencia artificial para LATAM,machine learning|numpy,Ing. Sistemas|Ing. Industrial|Economía,3,35,1319,San Miguel,-12.0773,-77.0924,hibrido,practica,2026-05-14,True
-Datalab Lima,Data Science,Laboratorio de datos y machine learning,sql|scikit-learn,Ing. Sistemas|Ing. Industrial|Economía,12,35,2241,Surco,-12.1391,-77.0117,remoto,practica,2026-04-24,True
-Predictiva Analytics,Data Science,Modelos predictivos para retail y finanzas,python|tableau,Ing. Sistemas|Ing. Industrial|Economía,12,30,1358,Chorrillos,-12.1717,-77.0169,remoto,practica,2026-05-28,True
-Circus Grey Lima,Marketing,Agencia de publicidad y marketing integrado,canva|hubspot,Marketing|Comunicaciones|Administración,3,30,1005,San Isidro,-12.0931,-77.0465,hibrido,practica,2026-05-19,True
-McCann Lima,Marketing,Agencia de comunicación estratégica,hubspot|facebook ads|canva,Marketing|Comunicaciones|Administración,12,20,1380,San Borja,-12.0919,-77.0011,remoto,practica,2026-05-30,True
-Havas Media Peru,Marketing,Planificación y compra de medios,google ads|canva,Marketing|Comunicaciones|Administración,0,30,983,Jesús María,-12.0725,-77.0484,presencial,practica,2026-05-16,True
-Wunderman Thompson PE,Marketing,Marketing digital y CRM,canva|seo|facebook ads,Marketing|Comunicaciones|Administración,3,35,968,Barranco,-12.1453,-77.021,hibrido,practica,2026-03-22,True
-Tribal DDB Peru,Marketing,Agencia digital creativa,seo|canva|hubspot|social media|google ads,Marketing|Comunicaciones|Administración,3,30,1191,Magdalena,-12.0907,-77.0747,hibrido,practica,2026-04-24,True
-Socialmood Agency,Marketing,Especialistas en redes sociales,canva|seo,Marketing|Comunicaciones|Administración,0,35,1127,San Borja,-12.0919,-77.0011,remoto,practica,2026-03-30,True
-Infinito Estudio,Diseño UX/UI,Estudio de diseño de experiencias digitales,sketch|adobe xd|photoshop,Diseño Gráfico|Comunicaciones,6,35,884,Jesús María,-12.0725,-77.0484,hibrido,practica,2026-05-16,True
-Fábrica de Ideas SAC,Diseño UX/UI,UX research y diseño de producto,figma|illustrator|adobe xd|sketch,Diseño Gráfico|Comunicaciones,0,20,1361,Jesús María,-12.0725,-77.0484,presencial,practica,2026-04-01,True
-Brandlive Peru,Diseño Gráfico,Branding y diseño gráfico corporativo,canva|illustrator|photoshop,Diseño Gráfico|Comunicaciones,6,25,840,Barranco,-12.1453,-77.021,remoto,practica,2026-03-31,True
-Creativa Estudio,Diseño Gráfico,Diseño editorial y packaging,canva|photoshop|figma,Diseño Gráfico|Comunicaciones,3,30,1413,San Miguel,-12.0773,-77.0924,remoto,practica,2026-04-30,True
-Credicorp Capital,Finanzas,Gestión de inversiones y banca de inversión,excel|tableau,Economía|Administración|Contabilidad,6,25,1606,Magdalena,-12.0907,-77.0747,hibrido,practica,2026-05-26,True
-Scotiabank Peru,Finanzas,Prácticas en área de riesgos y finanzas,power bi|excel|tableau|sql,Economía|Administración|Contabilidad,0,20,1473,Magdalena,-12.0907,-77.0747,hibrido,practica,2026-05-20,True
-Compartamos Financiera,Finanzas,Microfinanzas e inclusión financiera,power bi|tableau|excel,Economía|Administración|Contabilidad,3,20,1943,San Miguel,-12.0773,-77.0924,remoto,practica,2026-05-20,True
-Renta4 Perú,Finanzas,Mercado de capitales y fondos de inversión,excel|power bi|sql,Economía|Administración|Contabilidad,6,30,1925,Pueblo Libre,-12.074,-77.0635,hibrido,practica,2026-05-27,True
-Konfío Peru,Finanzas,Fintech de crédito para pymes,tableau|sql|power bi,Economía|Administración|Contabilidad,12,25,1241,Surco,-12.1391,-77.0117,remoto,practica,2026-05-16,True
-EY Peru,Consultoría,Auditoría consultoría y servicios empresariales,excel|sql|power bi,Administración|Economía|Ing. Industrial,12,25,1955,Surco,-12.1391,-77.0117,presencial,practica,2026-03-22,True
-Deloitte Lima,Consultoría,Servicios de consultoría estratégica,sql|excel|powerpoint|power bi,Administración|Economía|Ing. Industrial,3,25,1013,San Borja,-12.0919,-77.0011,remoto,practica,2026-05-04,True
-KPMG Perú,Consultoría,Auditoría y consultoría de negocios,excel|powerpoint|sql,Administración|Economía|Ing. Industrial,6,30,1169,Lince,-12.0821,-77.0386,remoto,practica,2026-06-11,True
-McKinsey Lima,Consultoría,Consultoría estratégica de alto nivel,power bi|powerpoint|sql,Administración|Economía|Ing. Industrial,12,35,1922,Pueblo Libre,-12.074,-77.0635,remoto,practica,2026-04-12,True
-Manpower Peru,Recursos Humanos,Soluciones de empleo y talento,powerpoint|power bi,Psicología|Administración,6,30,1244,San Miguel,-12.0773,-77.0924,remoto,practica,2026-04-27,True
-Adecco Peru,Recursos Humanos,Gestión de recursos humanos y outsourcing,powerpoint|power bi|excel,Psicología|Administración,6,25,1426,Jesús María,-12.0725,-77.0484,hibrido,practica,2026-03-28,True
-Falabella Peru Tech,E-commerce,Tecnología para retail y e-commerce,google analytics|sql|excel,Marketing|Administración|Ing. Sistemas,12,35,1062,Lince,-12.0821,-77.0386,presencial,practica,2026-04-19,True
-Ripley Digital,E-commerce,Transformación digital del retail,sql|excel,Marketing|Administración|Ing. Sistemas,3,30,1086,Chorrillos,-12.1717,-77.0169,remoto,practica,2026-05-23,True
-InRetail Analytics,E-commerce,Analítica para retail moderno,google analytics|excel|social media,Marketing|Administración|Ing. Sistemas,3,20,1388,Magdalena,-12.0907,-77.0747,hibrido,practica,2026-04-13,True
-Linio Peru,E-commerce,Marketplace y comercio electrónico,sql|excel,Marketing|Administración|Ing. Sistemas,12,20,1246,Lince,-12.0821,-77.0386,remoto,practica,2026-04-03,True
-DHL Supply Chain Peru,Logística,Cadena de suministro y logística global,sap|sql|excel|erp,Ing. Industrial|Administración,3,25,852,Barranco,-12.1453,-77.021,presencial,practica,2026-03-22,True
-Ransa Comercial,Logística,Operador logístico líder en Perú,sap|excel|sql|erp,Ing. Industrial|Administración,0,25,1203,Barranco,-12.1453,-77.021,presencial,practica,2026-06-07,True
-GH Supply Peru,Logística,Soluciones logísticas integrales,sap|excel,Ing. Industrial|Administración,0,20,1097,Magdalena,-12.0907,-77.0747,remoto,practica,2026-03-23,True
-Crehana Business,EdTech,Plataforma de aprendizaje online para empresas,python|sql|react,Ing. Sistemas|Ing. Software,0,30,1974,San Miguel,-12.0773,-77.0924,hibrido,practica,2026-04-05,True
-Aprende Institute,EdTech,Educación tech online en LATAM,javascript|react|python,Ing. Sistemas|Ing. Software,0,35,2134,San Isidro,-12.0931,-77.0465,remoto,practica,2026-06-04,True
-Laboratoria Lima,EdTech,Bootcamp de programación para mujeres,react|sql,Ing. Sistemas|Ing. Software,0,35,2023,Pueblo Libre,-12.074,-77.0635,hibrido,practica,2026-06-15,True
-Auna Salud Digital,HealthTech,Salud digital e historias clínicas,sql|python,Ing. Sistemas|Ing. Software,6,35,1937,Jesús María,-12.0725,-77.0484,hibrido,practica,2026-04-28,True
-Sanna Digital,HealthTech,Transformación digital en clínicas,data science|sql|python,Ing. Sistemas|Ing. Software,12,35,1704,Lince,-12.0821,-77.0386,remoto,practica,2026-04-11,True
-Telemed Peru,HealthTech,Telemedicina y salud conectada,python|data science,Ing. Sistemas|Ing. Software,12,35,1342,Pueblo Libre,-12.074,-77.0635,hibrido,practica,2026-04-25,True
-Entel Tech Peru,Telecomunicaciones,Innovación en telecomunicaciones,aws|python|docker,Ing. Sistemas|Ing. Software|Ing. Industrial,12,25,1943,San Isidro,-12.0931,-77.0465,remoto,practica,2026-04-27,True
+Pragma Tech Peru,Desarrollo Software,Consultora tecnológica líder en transformación digital,sql|git|django,Ing. Sistemas|Ing. Software,0,35,2041,La Molina,-12.0797,-76.942,hibrido,practica,2026-06-15,True
+Nubelo Solutions SAC,Desarrollo Software,Desarrollo de software a medida para empresas,javascript|docker|react|python,Ing. Sistemas|Ing. Software,12,25,2263,Surco,-12.1391,-77.0117,presencial,practica,2026-06-03,True
+InkaCode Labs,Desarrollo Software,Startup de desarrollo web y móvil,javascript|aws,Ing. Sistemas|Ing. Software,0,25,1293,San Borja,-12.0919,-77.0011,remoto,practica,2026-06-16,True
+Syscom Peru SAC,Desarrollo Software,Sistemas informáticos empresariales,react|sql|javascript|flask,Ing. Sistemas|Ing. Software,12,30,2410,Chorrillos,-12.1717,-77.0169,remoto,practica,2026-04-18,True
+Evol Software,Desarrollo Software,Soluciones de software escalables,git|python,Ing. Sistemas|Ing. Software,3,25,1471,Pueblo Libre,-12.074,-77.0635,presencial,practica,2026-04-29,True
+Auna Digital,Desarrollo Software,Tecnología aplicada al sector salud,node.js|aws,Ing. Sistemas|Ing. Software,3,35,1468,Surco,-12.1391,-77.0117,remoto,practica,2026-05-28,True
+Interbank Tech,Desarrollo Software,Área tecnológica del sector financiero,javascript|python,Ing. Sistemas|Ing. Software,12,20,1378,La Molina,-12.0797,-76.942,hibrido,practica,2026-04-22,True
+Rimac Digital,Desarrollo Software,Transformación digital en seguros,node.js|git,Ing. Sistemas|Ing. Software,6,35,1606,San Miguel,-12.0773,-77.0924,hibrido,practica,2026-05-01,True
+BCP Tecnología,Desarrollo Software,Equipo de innovación bancaria,django|git|docker|python|aws,Ing. Sistemas|Ing. Software,0,20,1204,Magdalena,-12.0907,-77.0747,presencial,practica,2026-05-20,True
+Yape Developers,Desarrollo Software,Billetera digital y pagos móviles,docker|node.js|aws|javascript|flask,Ing. Sistemas|Ing. Software,3,30,1965,Lince,-12.0821,-77.0386,remoto,practica,2026-05-30,True
+Datum Inteligencia,Data Science,Analítica de datos y business intelligence,numpy|power bi,Ing. Sistemas|Ing. Industrial|Economía,0,35,1807,Magdalena,-12.0907,-77.0747,remoto,practica,2026-03-30,True
+Analytics Peru,Data Science,Ciencia de datos aplicada a negocios,power bi|pandas|scikit-learn|numpy|tableau,Ing. Sistemas|Ing. Industrial|Economía,0,20,1440,Barranco,-12.1453,-77.021,remoto,practica,2026-06-03,True
+AI Andina SAC,Data Science,Inteligencia artificial para LATAM,sql|tableau|power bi,Ing. Sistemas|Ing. Industrial|Economía,0,20,1640,La Molina,-12.0797,-76.942,hibrido,practica,2026-06-03,True
+Datalab Lima,Data Science,Laboratorio de datos y machine learning,pandas|power bi|tableau,Ing. Sistemas|Ing. Industrial|Economía,3,30,2058,Lince,-12.0821,-77.0386,remoto,practica,2026-04-04,True
+Predictiva Analytics,Data Science,Modelos predictivos para retail y finanzas,tableau|numpy|machine learning,Ing. Sistemas|Ing. Industrial|Economía,6,20,1427,Chorrillos,-12.1717,-77.0169,remoto,practica,2026-03-24,True
+Circus Grey Lima,Marketing,Agencia de publicidad y marketing integrado,hubspot|google analytics|facebook ads|canva,Marketing|Comunicaciones|Administración,6,30,1143,San Miguel,-12.0773,-77.0924,remoto,practica,2026-04-18,True
+McCann Lima,Marketing,Agencia de comunicación estratégica,google analytics|google ads|hubspot,Marketing|Comunicaciones|Administración,3,25,831,Miraflores,-12.119,-77.0349,remoto,practica,2026-06-05,True
+Havas Media Peru,Marketing,Planificación y compra de medios,canva|google analytics|facebook ads|social media,Marketing|Comunicaciones|Administración,0,30,848,San Miguel,-12.0773,-77.0924,remoto,practica,2026-03-27,True
+Wunderman Thompson PE,Marketing,Marketing digital y CRM,google analytics|google ads|social media|canva|hubspot,Marketing|Comunicaciones|Administración,0,35,1334,San Borja,-12.0919,-77.0011,hibrido,practica,2026-05-23,True
+Tribal DDB Peru,Marketing,Agencia digital creativa,seo|google analytics|hubspot|social media|canva,Marketing|Comunicaciones|Administración,3,20,1363,Pueblo Libre,-12.074,-77.0635,presencial,practica,2026-04-23,True
+Socialmood Agency,Marketing,Especialistas en redes sociales,google analytics|canva|seo|google ads|social media,Marketing|Comunicaciones|Administración,12,35,855,San Isidro,-12.0931,-77.0465,presencial,practica,2026-06-06,True
+Infinito Estudio,Diseño UX/UI,Estudio de diseño de experiencias digitales,photoshop|adobe xd|illustrator|figma,Diseño Gráfico|Comunicaciones,12,20,1063,San Borja,-12.0919,-77.0011,presencial,practica,2026-06-04,True
+Fábrica de Ideas SAC,Diseño UX/UI,UX research y diseño de producto,photoshop|figma|sketch,Diseño Gráfico|Comunicaciones,3,30,1012,Magdalena,-12.0907,-77.0747,presencial,practica,2026-05-18,True
+Brandlive Peru,Diseño Gráfico,Branding y diseño gráfico corporativo,indesign|illustrator|figma|photoshop|canva,Diseño Gráfico|Comunicaciones,12,20,1344,Surco,-12.1391,-77.0117,remoto,practica,2026-05-23,True
+Creativa Estudio,Diseño Gráfico,Diseño editorial y packaging,illustrator|indesign|canva|figma,Diseño Gráfico|Comunicaciones,3,35,803,La Molina,-12.0797,-76.942,presencial,practica,2026-06-18,True
+Credicorp Capital,Finanzas,Gestión de inversiones y banca de inversión,sql|power bi|tableau|excel,Economía|Administración|Contabilidad,12,30,1645,La Molina,-12.0797,-76.942,hibrido,practica,2026-03-30,True
+Scotiabank Peru,Finanzas,Prácticas en área de riesgos y finanzas,sql|excel,Economía|Administración|Contabilidad,3,30,1002,San Miguel,-12.0773,-77.0924,presencial,practica,2026-04-12,True
+Compartamos Financiera,Finanzas,Microfinanzas e inclusión financiera,sql|power bi,Economía|Administración|Contabilidad,6,35,1924,Magdalena,-12.0907,-77.0747,hibrido,practica,2026-04-13,True
+Renta4 Perú,Finanzas,Mercado de capitales y fondos de inversión,excel|tableau,Economía|Administración|Contabilidad,0,30,1390,San Borja,-12.0919,-77.0011,hibrido,practica,2026-05-15,True
+Konfío Peru,Finanzas,Fintech de crédito para pymes,sql|tableau,Economía|Administración|Contabilidad,0,30,1072,Barranco,-12.1453,-77.021,presencial,practica,2026-06-06,True
+EY Peru,Consultoría,Auditoría consultoría y servicios empresariales,excel|powerpoint|power bi,Administración|Economía|Ing. Industrial,0,35,1379,Magdalena,-12.0907,-77.0747,presencial,practica,2026-05-30,True
+Deloitte Lima,Consultoría,Servicios de consultoría estratégica,sql|power bi|excel|powerpoint,Administración|Economía|Ing. Industrial,3,20,1894,Magdalena,-12.0907,-77.0747,remoto,practica,2026-05-11,True
+KPMG Perú,Consultoría,Auditoría y consultoría de negocios,power bi|excel|powerpoint|sql,Administración|Economía|Ing. Industrial,0,35,1242,San Isidro,-12.0931,-77.0465,hibrido,practica,2026-05-11,True
+McKinsey Lima,Consultoría,Consultoría estratégica de alto nivel,powerpoint|power bi,Administración|Economía|Ing. Industrial,3,35,1547,Magdalena,-12.0907,-77.0747,remoto,practica,2026-05-29,True
+Manpower Peru,Recursos Humanos,Soluciones de empleo y talento,power bi|powerpoint|excel,Psicología|Administración,0,30,1202,La Molina,-12.0797,-76.942,remoto,practica,2026-05-30,True
+Adecco Peru,Recursos Humanos,Gestión de recursos humanos y outsourcing,excel|power bi,Psicología|Administración,12,35,1203,Miraflores,-12.119,-77.0349,presencial,practica,2026-04-06,True
+Falabella Peru Tech,E-commerce,Tecnología para retail y e-commerce,google analytics|excel|sql,Marketing|Administración|Ing. Sistemas,0,30,1371,Chorrillos,-12.1717,-77.0169,remoto,practica,2026-05-26,True
+Ripley Digital,E-commerce,Transformación digital del retail,google analytics|social media|excel|sql,Marketing|Administración|Ing. Sistemas,0,30,973,San Borja,-12.0919,-77.0011,hibrido,practica,2026-04-08,True
+InRetail Analytics,E-commerce,Analítica para retail moderno,sql|social media,Marketing|Administración|Ing. Sistemas,12,35,1353,Surco,-12.1391,-77.0117,hibrido,practica,2026-05-31,True
+Linio Peru,E-commerce,Marketplace y comercio electrónico,google analytics|social media|sql|excel,Marketing|Administración|Ing. Sistemas,6,20,1429,Magdalena,-12.0907,-77.0747,hibrido,practica,2026-06-04,True
+DHL Supply Chain Peru,Logística,Cadena de suministro y logística global,erp|sql,Ing. Industrial|Administración,6,35,881,Magdalena,-12.0907,-77.0747,remoto,practica,2026-03-25,True
+Ransa Comercial,Logística,Operador logístico líder en Perú,sap|erp|sql|excel,Ing. Industrial|Administración,12,30,1234,Jesús María,-12.0725,-77.0484,hibrido,practica,2026-05-23,True
+GH Supply Peru,Logística,Soluciones logísticas integrales,excel|sap|erp,Ing. Industrial|Administración,0,35,1014,Jesús María,-12.0725,-77.0484,remoto,practica,2026-05-16,True
+Crehana Business,EdTech,Plataforma de aprendizaje online para empresas,python|javascript|react|sql,Ing. Sistemas|Ing. Software,12,20,1632,San Isidro,-12.0931,-77.0465,remoto,practica,2026-06-03,True
+Aprende Institute,EdTech,Educación tech online en LATAM,javascript|react|sql|python,Ing. Sistemas|Ing. Software,0,20,1982,Lince,-12.0821,-77.0386,presencial,practica,2026-05-26,True
+Laboratoria Lima,EdTech,Bootcamp de programación para mujeres,sql|react|python,Ing. Sistemas|Ing. Software,12,35,2080,San Miguel,-12.0773,-77.0924,remoto,practica,2026-05-16,True
+Auna Salud Digital,HealthTech,Salud digital e historias clínicas,data science|python,Ing. Sistemas|Ing. Software,6,35,1405,Lince,-12.0821,-77.0386,hibrido,practica,2026-04-11,True
+Sanna Digital,HealthTech,Transformación digital en clínicas,python|data science|sql,Ing. Sistemas|Ing. Software,0,20,1499,San Isidro,-12.0931,-77.0465,remoto,practica,2026-05-06,True
+Telemed Peru,HealthTech,Telemedicina y salud conectada,data science|python|sql,Ing. Sistemas|Ing. Software,12,20,2064,San Isidro,-12.0931,-77.0465,remoto,practica,2026-05-12,True
+Entel Tech Peru,Telecomunicaciones,Innovación en telecomunicaciones,sql|docker,Ing. Sistemas|Ing. Software|Ing. Industrial,0,35,1938,Miraflores,-12.119,-77.0349,hibrido,practica,2026-04-24,True

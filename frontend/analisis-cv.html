@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PractiMatch — Análisis de CV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --bg:     #07071a;
+      --bg2:    #0d0d24;
+      --panel:  rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.07);
+      --blue:   #3b82f6;
+      --indigo: #6366f1;
+      --violet: #8b5cf6;
+      --cyan:   #06b6d4;
+      --green:  #22c55e;
+      --orange: #f97316;
+      --pink:   #ec4899;
+      --text:   #e2e8f0;
+      --muted:  #64748b;
+      --muted2: #94a3b8;
+    }
+
+    html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; overflow:hidden; }
+    .app { display:flex; height:100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width:240px; flex-shrink:0; background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; }
+    .sidebar-logo { display:flex; align-items:center; gap:10px; padding:24px 20px; border-bottom:1px solid var(--border); font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:800; }
+    .logo-icon { width:34px; height:34px; background:linear-gradient(135deg,var(--indigo),var(--cyan)); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:.8rem; box-shadow:0 0 16px rgba(99,102,241,.4); }
+    .logo span { color:var(--indigo); }
+    .sidebar-section { padding:20px 12px 8px; font-size:.65rem; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; margin:2px 8px; font-size:.875rem; font-weight:500; color:var(--muted2); cursor:pointer; text-decoration:none; transition:all .2s; }
+    .nav-item:hover { background:var(--panel); color:var(--text); }
+    .nav-item.active { background:rgba(99,102,241,.12); color:#a5b4fc; border:1px solid rgba(99,102,241,.2); }
+    .nav-item i { width:16px; text-align:center; font-size:.85rem; }
+    .nav-badge { margin-left:auto; background:var(--indigo); color:#fff; font-size:.65rem; font-weight:700; padding:2px 7px; border-radius:999px; }
+    .nav-badge.red { background:var(--pink); }
+    .sidebar-bottom { margin-top:auto; padding:16px 12px; border-top:1px solid var(--border); }
+    .api-status { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.15); font-size:.78rem; color:#86efac; }
+    .status-dot { width:7px; height:7px; background:var(--green); border-radius:50%; box-shadow:0 0 6px var(--green); animation:blink 2s ease infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── MAIN ── */
+    .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 28px; border-bottom:1px solid var(--border); background:rgba(7,7,26,.8); backdrop-filter:blur(20px); flex-shrink:0; }
+    .topbar-title h1 { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; }
+    .topbar-title p  { font-size:.78rem; color:var(--muted2); margin-top:1px; }
+
+    .content { flex:1; overflow-y:auto; padding:24px 28px; display:grid; grid-template-columns:1fr 1.4fr; gap:20px; align-content:start; }
+    .content::-webkit-scrollbar { width:4px; }
+    .content::-webkit-scrollbar-thumb { background:var(--border); border-radius:999px; }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-col { display:flex; flex-direction:column; gap:16px; }
+
+    .upload-zone {
+      border:2px dashed var(--border);
+      border-radius:16px;
+      padding:40px 24px;
+      text-align:center;
+      transition:all .25s;
+      cursor:pointer;
+      background:var(--panel);
+      animation:fadeUp .4s ease both;
+      position:relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color:rgba(99,102,241,.5);
+      background:rgba(99,102,241,.05);
+    }
+    .upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+    .upload-icon {
+      width:64px; height:64px;
+      background:rgba(99,102,241,.1);
+      border:1px solid rgba(99,102,241,.2);
+      border-radius:16px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.6rem; color:var(--indigo);
+      margin:0 auto 16px;
+      transition:all .25s;
+    }
+    .upload-zone:hover .upload-icon { background:rgba(99,102,241,.18); transform:translateY(-2px); }
+
+    .upload-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:6px; }
+    .upload-sub   { font-size:.82rem; color:var(--muted2); line-height:1.5; }
+    .upload-formats {
+      display:flex; gap:8px; justify-content:center; margin-top:16px;
+    }
+    .fmt-badge {
+      font-size:.7rem; font-weight:600; padding:3px 10px; border-radius:999px;
+      border:1px solid; letter-spacing:.3px;
+    }
+    .fmt-pdf  { background:rgba(239,68,68,.08);  color:#fca5a5; border-color:rgba(239,68,68,.2);  }
+    .fmt-docx { background:rgba(59,130,246,.08); color:#93c5fd; border-color:rgba(59,130,246,.2); }
+
+    /* File preview */
+    .file-preview {
+      display:none;
+      align-items:center; gap:12px;
+      padding:14px 16px;
+      background:rgba(34,197,94,.06);
+      border:1px solid rgba(34,197,94,.15);
+      border-radius:12px;
+      animation:fadeUp .3s ease both;
+    }
+    .file-preview.visible { display:flex; }
+    .file-icon { width:36px; height:36px; background:rgba(34,197,94,.1); border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--green); font-size:.9rem; }
+    .file-info { flex:1; }
+    .file-name { font-size:.85rem; font-weight:500; }
+    .file-size { font-size:.72rem; color:var(--muted2); }
+    .file-remove { background:none; border:none; color:var(--muted2); cursor:pointer; font-size:.8rem; transition:color .2s; padding:4px; }
+    .file-remove:hover { color:var(--pink); }
+
+    /* Opciones */
+    .options-card {
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px;
+      animation:fadeUp .4s ease .1s both;
+    }
+    .opt-title { font-family:'Syne',sans-serif; font-size:.9rem; font-weight:700; margin-bottom:14px; }
+
+    .toggle-row {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 0;
+      border-bottom:1px solid var(--border);
+    }
+    .toggle-row:last-child { border-bottom:none; padding-bottom:0; }
+    .toggle-label { font-size:.83rem; font-weight:500; }
+    .toggle-sub   { font-size:.72rem; color:var(--muted2); margin-top:2px; }
+
+    .toggle {
+      position:relative; width:40px; height:22px;
+      background:rgba(255,255,255,.1);
+      border-radius:999px; cursor:pointer;
+      transition:background .2s; flex-shrink:0;
+    }
+    .toggle.on { background:var(--indigo); }
+    .toggle::after {
+      content:''; position:absolute;
+      top:3px; left:3px;
+      width:16px; height:16px;
+      background:#fff; border-radius:50%;
+      transition:transform .2s;
+    }
+    .toggle.on::after { transform:translateX(18px); }
+
+    .btn-analizar {
+      width:100%; padding:13px;
+      background:linear-gradient(135deg,var(--indigo),var(--blue));
+      border:none; border-radius:12px;
+      color:#fff; font-size:.95rem; font-weight:500;
+      cursor:pointer; font-family:'DM Sans',sans-serif;
+      box-shadow:0 0 20px rgba(99,102,241,.3);
+      transition:all .25s;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      animation:fadeUp .4s ease .2s both;
+    }
+    .btn-analizar:hover { transform:translateY(-2px); box-shadow:0 0 32px rgba(99,102,241,.5); }
+    .btn-analizar:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    .spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:none; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* ── RESULTADOS ── */
+    .results-col {
+      display:flex; flex-direction:column; gap:16px;
+      animation:fadeUp .4s ease .05s both;
+    }
+
+    .result-empty {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      height:100%; min-height:400px;
+      color:var(--muted2); text-align:center; gap:12px;
+    }
+    .result-empty i  { font-size:2.5rem; color:var(--muted); }
+    .result-empty h3 { font-family:'Syne',sans-serif; font-size:1rem; color:var(--text); }
+    .result-empty p  { font-size:.83rem; max-width:260px; line-height:1.6; }
+
+    /* Card de resultado */
+    .result-card {
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px;
+      display:none;
+    }
+    .result-card.visible { display:block; }
+
+    .result-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:16px; padding-bottom:14px;
+      border-bottom:1px solid var(--border);
+    }
+    .result-name { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; }
+    .result-email { font-size:.78rem; color:var(--muted2); margin-top:3px; }
+    .quality-ring {
+      width:54px; height:54px;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Syne',sans-serif; font-size:1rem; font-weight:800;
+      flex-shrink:0;
+    }
+
+    /* Info grid */
+    .info-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:16px;
+    }
+    .info-item {
+      padding:12px;
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--border);
+      border-radius:10px;
+    }
+    .info-label { font-size:.68rem; color:var(--muted2); text-transform:uppercase; letter-spacing:.8px; font-weight:500; margin-bottom:4px; }
+    .info-value { font-size:.88rem; font-weight:500; }
+
+    /* Habilidades */
+    .skills-section { margin-bottom:16px; }
+    .skills-title { font-size:.8rem; font-weight:600; color:var(--muted2); text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px; }
+    .skills-wrap  { display:flex; flex-wrap:wrap; gap:6px; }
+    .skill-tag {
+      font-size:.75rem; font-weight:500;
+      padding:4px 12px; border-radius:999px;
+      background:rgba(99,102,241,.1);
+      border:1px solid rgba(99,102,241,.2);
+      color:#a5b4fc;
+      transition:all .2s;
+    }
+    .skill-tag:hover { background:rgba(99,102,241,.2); }
+
+    /* Barra completitud */
+    .completitud-section { margin-bottom:16px; }
+    .comp-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+    .comp-label { font-size:.8rem; font-weight:600; color:var(--muted2); text-transform:uppercase; letter-spacing:.8px; }
+    .comp-val   { font-size:.85rem; font-weight:600; }
+    .comp-track { height:8px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; }
+    .comp-fill  { height:100%; border-radius:999px; transition:width 1s ease; }
+
+    /* Botón registrar */
+    .btn-registrar {
+      width:100%; padding:11px;
+      background:rgba(34,197,94,.08);
+      border:1px solid rgba(34,197,94,.2);
+      border-radius:10px;
+      color:var(--green); font-size:.85rem; font-weight:500;
+      cursor:pointer; font-family:'DM Sans',sans-serif;
+      transition:all .2s;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .btn-registrar:hover { background:rgba(34,197,94,.14); }
+    .btn-registrar:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* Success msg */
+    .success-msg {
+      display:none;
+      align-items:center; gap:10px;
+      padding:12px 14px;
+      background:rgba(34,197,94,.08);
+      border:1px solid rgba(34,197,94,.2);
+      border-radius:10px;
+      font-size:.82rem; color:var(--green);
+    }
+    .success-msg.visible { display:flex; }
+
+    .skeleton { background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; }
+    @keyframes shimmer { from{background-position:200% 0} to{background-position:-200% 0} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:900px) {
+      .content { grid-template-columns:1fr; overflow-y:auto; }
+      .sidebar  { display:none; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="fa-solid fa-bolt"></i></div>
+      Practi<span>Match</span>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <a href="dashboard.html"   class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+    <a href="matches.html"     class="nav-item"><i class="fa-solid fa-link"></i> Matches</a>
+    <a href="analisis-cv.html" class="nav-item active"><i class="fa-solid fa-file-lines"></i> Análisis CV</a>
+    <div class="sidebar-section">Agentes</div>
+    <a href="anomalias.html"   class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Anomalías</a>
+    <a href="dashboard.html"   class="nav-item"><i class="fa-solid fa-brain"></i> Learning</a>
+    <a href="dashboard.html"   class="nav-item"><i class="fa-solid fa-chart-line"></i> Monitor</a>
+    <div class="sidebar-section">Sistema</div>
+    <a href="index.html"       class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
+    <div class="sidebar-bottom">
+      <div class="api-status"><div class="status-dot"></div><span>API conectada</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-file-lines" style="color:var(--indigo);margin-right:8px;"></i>Análisis de CV</h1>
+        <p>Agente NLP · Extracción inteligente con spaCy</p>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- COLUMNA IZQUIERDA: Upload + Opciones -->
+      <div class="upload-col">
+
+        <!-- DROP ZONE -->
+        <div class="upload-zone" id="drop-zone"
+             ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+          <input type="file" id="file-input" accept=".pdf,.docx" onchange="onFileSelect(event)"/>
+          <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="upload-title">Arrastra tu CV aquí</div>
+          <div class="upload-sub">o haz click para seleccionar un archivo</div>
+          <div class="upload-formats">
+            <span class="fmt-badge fmt-pdf"><i class="fa-solid fa-file-pdf fa-xs"></i> PDF</span>
+            <span class="fmt-badge fmt-docx"><i class="fa-solid fa-file-word fa-xs"></i> DOCX</span>
+          </div>
+        </div>
+
+        <!-- FILE PREVIEW -->
+        <div class="file-preview" id="file-preview">
+          <div class="file-icon"><i class="fa-solid fa-file-check"></i></div>
+          <div class="file-info">
+            <div class="file-name" id="file-name">archivo.pdf</div>
+            <div class="file-size" id="file-size">0 KB</div>
+          </div>
+          <button class="file-remove" onclick="removeFile()" title="Eliminar">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- OPCIONES -->
+        <div class="options-card">
+          <div class="opt-title"><i class="fa-solid fa-sliders" style="color:var(--indigo);margin-right:6px;"></i>Opciones</div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Registrar en sistema</div>
+              <div class="toggle-sub">Guarda el estudiante en la BD automáticamente</div>
+            </div>
+            <div class="toggle on" id="toggle-registrar" onclick="toggleSwitch(this)"></div>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Análisis detallado</div>
+              <div class="toggle-sub">Muestra organizaciones detectadas por spaCy</div>
+            </div>
+            <div class="toggle on" id="toggle-detallado" onclick="toggleSwitch(this)"></div>
+          </div>
+        </div>
+
+        <!-- BTN ANALIZAR -->
+        <button class="btn-analizar" id="btn-analizar" onclick="analizarCV()" disabled>
+          <div class="spinner" id="spinner"></div>
+          <i class="fa-solid fa-microchip" id="btn-icon"></i>
+          <span id="btn-text">Selecciona un archivo primero</span>
+        </button>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: Resultados -->
+      <div class="results-col">
+
+        <!-- EMPTY STATE -->
+        <div class="result-empty" id="result-empty">
+          <i class="fa-solid fa-file-circle-question"></i>
+          <h3>Sin análisis aún</h3>
+          <p>Sube un CV en PDF o DOCX y el Agente NLP extraerá automáticamente toda la información del perfil.</p>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;text-align:left;">
+            <div style="font-size:.78rem;color:var(--muted2);display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-circle-dot" style="color:var(--indigo);font-size:.6rem;"></i> Nombre y contacto
+            </div>
+            <div style="font-size:.78rem;color:var(--muted2);display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-circle-dot" style="color:var(--indigo);font-size:.6rem;"></i> Universidad y carrera
+            </div>
+            <div style="font-size:.78rem;color:var(--muted2);display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-circle-dot" style="color:var(--indigo);font-size:.6rem;"></i> Habilidades técnicas
+            </div>
+            <div style="font-size:.78rem;color:var(--muted2);display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-circle-dot" style="color:var(--indigo);font-size:.6rem;"></i> Cargo actual detectado
+            </div>
+            <div style="font-size:.78rem;color:var(--muted2);display:flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-circle-dot" style="color:var(--indigo);font-size:.6rem;"></i> Nivel de inglés
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULT CARD -->
+        <div class="result-card" id="result-card">
+
+          <div class="result-header">
+            <div>
+              <div class="result-name" id="res-nombre">—</div>
+              <div id="res-cargo-wrap" style="display:none;margin-top:2px;">
+                <span id="res-cargo" style="font-size:.78rem;color:var(--cyan);font-weight:500;"></span>
+              </div>
+              <div class="result-email" id="res-email" style="margin-top:3px;">—</div>
+            </div>
+            <div class="quality-ring" id="quality-ring">—</div>
+          </div>
+
+          <!-- Info grid -->
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label"><i class="fa-solid fa-phone fa-xs"></i> Teléfono</div>
+              <div class="info-value" id="res-telefono">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label"><i class="fa-solid fa-university fa-xs"></i> Universidad</div>
+              <div class="info-value" id="res-universidad">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label"><i class="fa-solid fa-briefcase fa-xs"></i> Experiencia</div>
+              <div class="info-value" id="res-experiencia">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label"><i class="fa-solid fa-globe fa-xs"></i> Inglés</div>
+              <div class="info-value" id="res-ingles">—</div>
+            </div>
+          </div>
+
+          <!-- Completitud -->
+          <div class="completitud-section">
+            <div class="comp-header">
+              <span class="comp-label">Completitud del perfil</span>
+              <span class="comp-val" id="res-completitud">—</span>
+            </div>
+            <div class="comp-track">
+              <div class="comp-fill" id="comp-fill" style="width:0%;background:var(--indigo);"></div>
+            </div>
+          </div>
+
+          <!-- Habilidades -->
+          <div class="skills-section">
+            <div class="skills-title"><i class="fa-solid fa-code fa-xs"></i> Habilidades detectadas</div>
+            <div class="skills-wrap" id="res-habilidades"></div>
+          </div>
+
+          <!-- Organizaciones (si toggle on) -->
+          <div class="skills-section" id="orgs-section" style="display:none;">
+            <div class="skills-title"><i class="fa-solid fa-building fa-xs"></i> Organizaciones detectadas por spaCy</div>
+            <div class="skills-wrap" id="res-organizaciones"></div>
+          </div>
+
+          <!-- Archivo analizado -->
+          <div style="font-size:.72rem;color:var(--muted);margin-bottom:14px;font-style:italic;" id="res-archivo"></div>
+
+          <!-- Botón registrar -->
+          <button class="btn-registrar" id="btn-registrar" onclick="registrarEstudiante()">
+            <i class="fa-solid fa-user-plus"></i> Registrar estudiante en el sistema
+          </button>
+
+          <!-- Success msg -->
+          <div class="success-msg" id="success-msg">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="success-text">Estudiante registrado con ID #—</span>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = 'http://localhost:5000';
+let archivoSeleccionado = null;
+let resultadoActual     = null;
+
+function toggleSwitch(el) { el.classList.toggle('on'); }
+
+function onDrag(e, over) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.toggle('drag-over', over);
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) procesarArchivo(file);
+}
+
+function onFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) procesarArchivo(file);
+}
+
+function procesarArchivo(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['pdf','docx'].includes(ext)) {
+    alert('Solo se aceptan archivos PDF o DOCX');
+    return;
+  }
+  archivoSeleccionado = file;
+
+  // Mostrar preview
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+  document.getElementById('file-preview').classList.add('visible');
+
+  // Activar botón
+  const btn = document.getElementById('btn-analizar');
+  btn.disabled = false;
+  document.getElementById('btn-text').textContent = 'Analizar CV con IA';
+}
+
+function removeFile() {
+  archivoSeleccionado = null;
+  document.getElementById('file-preview').classList.remove('visible');
+  document.getElementById('file-input').value = '';
+  document.getElementById('btn-analizar').disabled = true;
+  document.getElementById('btn-text').textContent = 'Selecciona un archivo primero';
+}
+
+async function analizarCV() {
+  if (!archivoSeleccionado) return;
+
+  const registrar  = document.getElementById('toggle-registrar').classList.contains('on');
+  const detallado  = document.getElementById('toggle-detallado').classList.contains('on');
+
+  // UI loading
+  const btn     = document.getElementById('btn-analizar');
+  const spinner = document.getElementById('spinner');
+  const icon    = document.getElementById('btn-icon');
+  btn.disabled  = true;
+  spinner.style.display = 'block';
+  icon.style.display    = 'none';
+  document.getElementById('btn-text').textContent = 'Analizando con spaCy...';
+
+  // Ocultar resultado anterior
+  document.getElementById('result-card').classList.remove('visible');
+  document.getElementById('result-empty').style.display = 'none';
+
+  try {
+    const formData = new FormData();
+    formData.append('archivo', archivoSeleccionado);
+    if (registrar) formData.append('registrar', 'true');
+
+    const res  = await fetch(`${API}/api/subir-cv`, { method:'POST', body:formData });
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.error || 'Error al analizar el CV');
+
+    resultadoActual = data;
+    mostrarResultado(data, detallado);
+
+  } catch(e) {
+    document.getElementById('result-empty').style.display = 'flex';
+    document.getElementById('result-empty').innerHTML = `
+      <i class="fa-solid fa-circle-exclamation" style="color:var(--pink)"></i>
+      <h3>Error al analizar</h3>
+      <p>${e.message}</p>`;
+  } finally {
+    btn.disabled  = false;
+    spinner.style.display = 'none';
+    icon.style.display    = 'inline';
+    document.getElementById('btn-text').textContent = 'Analizar CV con IA';
+  }
+}
+
+function mostrarResultado(data, detallado) {
+  const r = data.resultado;
+  if (!r) return;
+
+  document.getElementById('result-empty').style.display = 'none';
+  document.getElementById('result-card').classList.add('visible');
+  document.getElementById('success-msg').classList.remove('visible');
+
+  // Nombre y email
+  document.getElementById('res-nombre').textContent    = r.nombre    || 'Nombre no detectado';
+  document.getElementById('res-email').textContent     = r.email     || 'Sin email';
+  document.getElementById('res-telefono').textContent  = r.telefono  || '—';
+  document.getElementById('res-universidad').textContent = r.universidad || '—';
+  document.getElementById('res-ingles').textContent    = r.nivel_ingles || '—';
+  document.getElementById('res-archivo').textContent   = `Archivo analizado: ${data.archivo}`;
+
+  // Mostrar cargo si fue detectado
+  const cargoWrap = document.getElementById('res-cargo-wrap');
+  if (r.cargo) {
+    document.getElementById('res-cargo').textContent = '💼 ' + r.cargo;
+    cargoWrap.style.display = 'block';
+  } else {
+    cargoWrap.style.display = 'none';
+  }
+
+  // Experiencia en años y meses (más legible que solo meses)
+  const meses = r.meses_experiencia || 0;
+  let expTexto = '';
+  if (meses === 0) {
+    expTexto = 'Sin experiencia';
+  } else {
+    const años = Math.floor(meses / 12);
+    const mesesRest = meses % 12;
+    if (años > 0 && mesesRest > 0) {
+      expTexto = `${años} año${años > 1 ? 's' : ''} ${mesesRest} mes${mesesRest > 1 ? 'es' : ''}`;
+    } else if (años > 0) {
+      expTexto = `${años} año${años > 1 ? 's' : ''}`;
+    } else {
+      expTexto = `${meses} mes${meses > 1 ? 'es' : ''}`;
+    }
+  }
+  document.getElementById('res-experiencia').textContent = expTexto;
+
+  // Completitud
+  const comp = r.completitud || 0;
+  document.getElementById('res-completitud').textContent = comp + '%';
+  const fill  = document.getElementById('comp-fill');
+  fill.style.width      = '0%';
+  fill.style.background = comp >= 80 ? 'var(--green)' : comp >= 50 ? 'var(--blue)' : 'var(--orange)';
+  setTimeout(() => { fill.style.width = comp + '%'; }, 100);
+
+  // Quality ring
+  const ring  = document.getElementById('quality-ring');
+  const calidad = r.calidad_cv || 0;
+  ring.textContent = calidad;
+  if (calidad >= 80) {
+    ring.style.cssText = 'background:rgba(34,197,94,.12);color:#22c55e;border:2px solid rgba(34,197,94,.3);width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:1rem;font-weight:800;';
+  } else if (calidad >= 60) {
+    ring.style.cssText = 'background:rgba(59,130,246,.12);color:#3b82f6;border:2px solid rgba(59,130,246,.3);width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:1rem;font-weight:800;';
+  } else {
+    ring.style.cssText = 'background:rgba(249,115,22,.12);color:#f97316;border:2px solid rgba(249,115,22,.3);width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:1rem;font-weight:800;';
+  }
+
+  // Habilidades
+  const habs = r.habilidades || [];
+  document.getElementById('res-habilidades').innerHTML = habs.length
+    ? habs.map(h => `<span class="skill-tag">${h}</span>`).join('')
+    : '<span style="font-size:.8rem;color:var(--muted2)">No se detectaron habilidades</span>';
+
+  // Organizaciones (spaCy)
+  const orgsSection = document.getElementById('orgs-section');
+  if (detallado && r.organizaciones_detectadas && r.organizaciones_detectadas.length > 0) {
+    orgsSection.style.display = 'block';
+    document.getElementById('res-organizaciones').innerHTML =
+      r.organizaciones_detectadas.map(o =>
+        `<span class="skill-tag" style="background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.2);color:#67e8f9;">${o}</span>`
+      ).join('');
+  } else {
+    orgsSection.style.display = 'none';
+  }
+
+  // Si se registró automáticamente
+  if (data.estudiante_registrado && data.estudiante_id) {
+    document.getElementById('btn-registrar').style.display = 'none';
+    const msg = document.getElementById('success-msg');
+    msg.classList.add('visible');
+    document.getElementById('success-text').textContent = `Estudiante registrado automáticamente con ID #${data.estudiante_id}`;
+  } else {
+    document.getElementById('btn-registrar').style.display = 'flex';
+    document.getElementById('btn-registrar').disabled = false;
+  }
+}
+
+async function registrarEstudiante() {
+  if (!archivoSeleccionado) return;
+  const btn = document.getElementById('btn-registrar');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
+
+  try {
+    const formData = new FormData();
+    formData.append('archivo', archivoSeleccionado);
+    formData.append('registrar', 'true');
+
+    const res  = await fetch(`${API}/api/subir-cv`, { method:'POST', body:formData });
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.error);
+
+    btn.style.display = 'none';
+    const msg = document.getElementById('success-msg');
+    msg.classList.add('visible');
+    document.getElementById('success-text').textContent =
+      data.estudiante_id
+        ? `Estudiante registrado con ID #${data.estudiante_id}`
+        : 'El email ya existe en el sistema';
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Registrar estudiante en el sistema';
+    alert('Error: ' + e.message);
+  }
+}
+</script>
+</body>
+</html>

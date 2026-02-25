@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PractiMatch — Matches</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --bg:     #07071a;
+      --bg2:    #0d0d24;
+      --panel:  rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.07);
+      --blue:   #3b82f6;
+      --indigo: #6366f1;
+      --violet: #8b5cf6;
+      --cyan:   #06b6d4;
+      --green:  #22c55e;
+      --orange: #f97316;
+      --pink:   #ec4899;
+      --text:   #e2e8f0;
+      --muted:  #64748b;
+      --muted2: #94a3b8;
+    }
+
+    html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; overflow:hidden; }
+    .app { display:flex; height:100vh; }
+
+    /* ── SIDEBAR (igual en todas las páginas) ── */
+    .sidebar {
+      width:240px; flex-shrink:0;
+      background:var(--bg2);
+      border-right:1px solid var(--border);
+      display:flex; flex-direction:column;
+    }
+    .sidebar-logo {
+      display:flex; align-items:center; gap:10px;
+      padding:24px 20px;
+      border-bottom:1px solid var(--border);
+      font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:800;
+    }
+    .logo-icon {
+      width:34px; height:34px;
+      background:linear-gradient(135deg,var(--indigo),var(--cyan));
+      border-radius:9px; display:flex; align-items:center; justify-content:center;
+      font-size:.8rem; box-shadow:0 0 16px rgba(99,102,241,.4);
+    }
+    .logo span { color:var(--indigo); }
+    .sidebar-section { padding:20px 12px 8px; font-size:.65rem; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); }
+    .nav-item {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 14px; border-radius:10px; margin:2px 8px;
+      font-size:.875rem; font-weight:500; color:var(--muted2);
+      cursor:pointer; text-decoration:none; transition:all .2s;
+    }
+    .nav-item:hover { background:var(--panel); color:var(--text); }
+    .nav-item.active { background:rgba(99,102,241,.12); color:#a5b4fc; border:1px solid rgba(99,102,241,.2); }
+    .nav-item i { width:16px; text-align:center; font-size:.85rem; }
+    .nav-badge { margin-left:auto; background:var(--indigo); color:#fff; font-size:.65rem; font-weight:700; padding:2px 7px; border-radius:999px; }
+    .nav-badge.red { background:var(--pink); }
+    .sidebar-bottom { margin-top:auto; padding:16px 12px; border-top:1px solid var(--border); }
+    .api-status { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.15); font-size:.78rem; color:#86efac; }
+    .status-dot { width:7px; height:7px; background:var(--green); border-radius:50%; box-shadow:0 0 6px var(--green); animation:blink 2s ease infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── MAIN ── */
+    .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+    .topbar {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 28px; border-bottom:1px solid var(--border);
+      background:rgba(7,7,26,.8); backdrop-filter:blur(20px); flex-shrink:0;
+    }
+    .topbar-title h1 { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; }
+    .topbar-title p  { font-size:.78rem; color:var(--muted2); margin-top:1px; }
+    .tb-btn {
+      display:flex; align-items:center; gap:7px;
+      padding:8px 16px; border-radius:9px; border:1px solid var(--border);
+      background:var(--panel); color:var(--muted2); font-size:.8rem; font-weight:500;
+      cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif;
+    }
+    .tb-btn:hover { border-color:rgba(99,102,241,.4); color:var(--text); }
+    .tb-btn.primary { background:linear-gradient(135deg,var(--indigo),var(--blue)); border-color:transparent; color:#fff; box-shadow:0 0 16px rgba(99,102,241,.3); }
+    .tb-btn.primary:hover { box-shadow:0 0 24px rgba(99,102,241,.5); transform:translateY(-1px); }
+
+    .content { flex:1; overflow-y:auto; padding:24px 28px; display:flex; flex-direction:column; gap:20px; }
+    .content::-webkit-scrollbar { width:4px; }
+    .content::-webkit-scrollbar-thumb { background:var(--border); border-radius:999px; }
+
+    /* ── SEARCH PANEL ── */
+    .search-panel {
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:24px;
+      animation:fadeUp .4s ease both;
+    }
+    .search-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:4px; }
+    .search-sub   { font-size:.8rem; color:var(--muted2); margin-bottom:20px; }
+
+    .search-form { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+
+    .form-group { display:flex; flex-direction:column; gap:6px; flex:1; min-width:200px; }
+    .form-label { font-size:.75rem; font-weight:500; color:var(--muted2); text-transform:uppercase; letter-spacing:.8px; }
+    .form-input {
+      padding:10px 14px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      border-radius:10px;
+      color:var(--text);
+      font-size:.9rem;
+      font-family:'DM Sans',sans-serif;
+      transition:border-color .2s;
+      outline:none;
+    }
+    .form-input:focus { border-color:rgba(99,102,241,.5); background:rgba(99,102,241,.05); }
+    .form-input option { background:#0d0d24; }
+
+    .btn-calc {
+      display:flex; align-items:center; gap:8px;
+      padding:10px 24px;
+      background:linear-gradient(135deg,var(--indigo),var(--blue));
+      border:none; border-radius:10px;
+      color:#fff; font-size:.9rem; font-weight:500;
+      cursor:pointer; font-family:'DM Sans',sans-serif;
+      box-shadow:0 0 20px rgba(99,102,241,.35);
+      transition:all .25s; white-space:nowrap;
+    }
+    .btn-calc:hover { transform:translateY(-2px); box-shadow:0 0 30px rgba(99,102,241,.5); }
+    .btn-calc:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    /* ── RESULTADOS HEADER ── */
+    .results-header {
+      display:flex; align-items:center; justify-content:space-between;
+      animation:fadeUp .4s ease .1s both;
+    }
+    .results-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+    .results-sub   { font-size:.78rem; color:var(--muted2); margin-top:2px; }
+    .results-badge {
+      font-size:.75rem; font-weight:600;
+      padding:4px 12px; border-radius:999px;
+      background:rgba(99,102,241,.12);
+      border:1px solid rgba(99,102,241,.2);
+      color:#a5b4fc;
+    }
+
+    /* ── MATCH CARDS ── */
+    .matches-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));
+      gap:16px;
+      animation:fadeUp .4s ease .15s both;
+    }
+
+    .match-card {
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px;
+      transition:all .3s;
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+    }
+    .match-card::before {
+      content:'';
+      position:absolute;
+      top:0; left:0; bottom:0;
+      width:3px;
+      border-radius:3px 0 0 3px;
+    }
+    .match-card.score-excelente::before { background:var(--green); }
+    .match-card.score-bueno::before     { background:var(--blue); }
+    .match-card.score-regular::before   { background:var(--orange); }
+    .match-card.score-bajo::before      { background:var(--pink); }
+
+    .match-card:hover { transform:translateY(-4px); box-shadow:0 16px 48px rgba(0,0,0,.4); border-color:rgba(99,102,241,.25); }
+
+    .match-top {
+      display:flex; align-items:flex-start; justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .match-empresa { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+    .match-area    { font-size:.75rem; color:var(--muted2); margin-top:3px; }
+
+    .score-badge {
+      font-family:'Syne',sans-serif;
+      font-size:1.3rem; font-weight:800;
+      padding:6px 14px;
+      border-radius:10px;
+      flex-shrink:0;
+    }
+    .score-excelente .score-badge { background:rgba(34,197,94,.12);  color:var(--green);  border:1px solid rgba(34,197,94,.2);  }
+    .score-bueno     .score-badge { background:rgba(59,130,246,.12); color:var(--blue);   border:1px solid rgba(59,130,246,.2); }
+    .score-regular   .score-badge { background:rgba(249,115,22,.12); color:var(--orange); border:1px solid rgba(249,115,22,.2); }
+    .score-bajo      .score-badge { background:rgba(236,72,153,.12); color:var(--pink);   border:1px solid rgba(236,72,153,.2); }
+
+    /* Barras de desglose */
+    .desglose { display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+    .desglose-row { display:flex; align-items:center; gap:8px; }
+    .desglose-label { font-size:.72rem; color:var(--muted2); width:90px; flex-shrink:0; }
+    .bar-track { flex:1; height:5px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; }
+    .bar-fill  { height:100%; border-radius:999px; transition:width .8s ease; }
+    .desglose-val { font-size:.72rem; color:var(--muted2); width:32px; text-align:right; flex-shrink:0; }
+
+    .match-insight {
+      font-size:.78rem;
+      color:var(--muted2);
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:10px 12px;
+      line-height:1.5;
+      margin-bottom:14px;
+      font-style:italic;
+    }
+
+    .match-footer {
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .recom-badge {
+      font-size:.7rem; font-weight:600;
+      padding:4px 10px; border-radius:999px;
+      border:1px solid;
+    }
+    .recom-alta    { background:rgba(34,197,94,.08);  color:var(--green);  border-color:rgba(34,197,94,.2);  }
+    .recom-media   { background:rgba(59,130,246,.08); color:var(--blue);   border-color:rgba(59,130,246,.2); }
+    .recom-baja    { background:rgba(236,72,153,.08); color:var(--pink);   border-color:rgba(236,72,153,.2); }
+
+    .btn-postular {
+      font-size:.75rem; font-weight:500;
+      padding:6px 14px; border-radius:8px;
+      border:1px solid rgba(99,102,241,.3);
+      background:rgba(99,102,241,.08);
+      color:#a5b4fc; cursor:pointer;
+      transition:all .2s; font-family:'DM Sans',sans-serif;
+    }
+    .btn-postular:hover { background:rgba(99,102,241,.15); border-color:rgba(99,102,241,.5); }
+
+    /* ── EMPTY / LOADING ── */
+    .empty-state {
+      grid-column:1/-1;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      padding:60px 20px; color:var(--muted2); text-align:center; gap:12px;
+    }
+    .empty-state i  { font-size:2.5rem; color:var(--muted); }
+    .empty-state h3 { font-family:'Syne',sans-serif; font-size:1rem; color:var(--text); }
+    .empty-state p  { font-size:.85rem; max-width:300px; line-height:1.6; }
+
+    .skeleton {
+      background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);
+      background-size:200% 100%;
+      animation:shimmer 1.5s infinite;
+      border-radius:8px;
+    }
+    @keyframes shimmer { from{background-position:200% 0} to{background-position:-200% 0} }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width:18px; height:18px;
+      border:2px solid rgba(255,255,255,.2);
+      border-top-color:#fff;
+      border-radius:50%;
+      animation:spin .7s linear infinite;
+      display:none;
+    }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:768px) {
+      .sidebar { display:none; }
+      .search-form { flex-direction:column; }
+      .matches-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="fa-solid fa-bolt"></i></div>
+      Practi<span>Match</span>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+    <a href="matches.html"   class="nav-item active"><i class="fa-solid fa-link"></i> Matches</a>
+    <a href="analisis-cv.html" class="nav-item"><i class="fa-solid fa-file-lines"></i> Análisis CV</a>
+    <div class="sidebar-section">Agentes</div>
+    <a href="anomalias.html" class="nav-item"><i class="fa-solid fa-triangle-exclamation"></i> Anomalías</a>
+    <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-brain"></i> Learning</a>
+    <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Monitor</a>
+    <div class="sidebar-section">Sistema</div>
+    <a href="index.html"     class="nav-item"><i class="fa-solid fa-house"></i> Inicio</a>
+    <div class="sidebar-bottom">
+      <div class="api-status"><div class="status-dot"></div><span>API conectada</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        <h1><i class="fa-solid fa-link" style="color:var(--indigo);margin-right:8px;"></i>Motor de Matching</h1>
+        <p>Calcula compatibilidad bidireccional estudiante ↔ empresa</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="tb-btn" onclick="limpiarResultados()">
+          <i class="fa-solid fa-broom"></i> Limpiar
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- SEARCH PANEL -->
+      <div class="search-panel">
+        <div class="search-title"><i class="fa-solid fa-magnifying-glass" style="color:var(--indigo);margin-right:6px;"></i>Calcular Matches</div>
+        <div class="search-sub">Selecciona un estudiante para calcular su compatibilidad con todas las empresas activas</div>
+        <div class="search-form">
+          <div class="form-group">
+            <label class="form-label">Estudiante</label>
+            <select class="form-input" id="select-estudiante">
+              <option value="">— Cargando estudiantes... —</option>
+            </select>
+          </div>
+          <button class="btn-calc" id="btn-calcular" onclick="calcularMatches()">
+            <div class="spinner" id="spinner"></div>
+            <i class="fa-solid fa-bolt" id="btn-icon"></i>
+            <span id="btn-text">Calcular Matches</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RESULTADOS HEADER -->
+      <div class="results-header" id="results-header" style="display:none;">
+        <div>
+          <div class="results-title">Resultados del Matching</div>
+          <div class="results-sub" id="results-sub">Top matches calculados</div>
+        </div>
+        <span class="results-badge" id="results-badge">0 matches</span>
+      </div>
+
+      <!-- MATCHES GRID -->
+      <div class="matches-grid" id="matches-grid">
+        <div class="empty-state">
+          <i class="fa-solid fa-network-wired"></i>
+          <h3>Sin resultados aún</h3>
+          <p>Selecciona un estudiante y presiona "Calcular Matches" para ver las empresas más compatibles.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const API = 'http://localhost:5000';
+
+// Cargar estudiantes en el selector
+async function cargarEstudiantes() {
+  try {
+    const res  = await fetch(`${API}/api/estudiantes`);
+    const data = await res.json();
+    const sel  = document.getElementById('select-estudiante');
+
+    sel.innerHTML = '<option value="">— Selecciona un estudiante —</option>' +
+      data.estudiantes.map(e =>
+        `<option value="${e.id}">${e.nombre} — ${e.carrera} (${e.universidad})</option>`
+      ).join('');
+  } catch {
+    document.getElementById('select-estudiante').innerHTML =
+      '<option value="">Error cargando estudiantes</option>';
+  }
+}
+
+// Calcular matches
+async function calcularMatches() {
+  const id = document.getElementById('select-estudiante').value;
+  estudianteActualId = parseInt(id); 
+  if (!id) { alert('Por favor selecciona un estudiante'); return; }
+
+  // UI loading
+  const btn     = document.getElementById('btn-calcular');
+  const spinner = document.getElementById('spinner');
+  const icon    = document.getElementById('btn-icon');
+  const txt     = document.getElementById('btn-text');
+
+  btn.disabled  = true;
+  spinner.style.display = 'block';
+  icon.style.display    = 'none';
+  txt.textContent       = 'Calculando...';
+
+  document.getElementById('matches-grid').innerHTML =
+    Array(6).fill(`<div class="match-card" style="height:220px;"><div class="skeleton" style="height:100%;border-radius:14px;"></div></div>`).join('');
+
+  try {
+    const res  = await fetch(`${API}/api/calcular-matches`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ estudiante_id: parseInt(id) })
+    });
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.error);
+
+    const matches    = data.matches;
+    const nombreEst  = document.getElementById('select-estudiante').selectedOptions[0].text.split(' — ')[0];
+
+    document.getElementById('results-header').style.display = 'flex';
+    document.getElementById('results-sub').textContent      = `Top ${matches.length} empresas más compatibles para ${nombreEst}`;
+    document.getElementById('results-badge').textContent    = `${data.num_matches} matches totales`;
+
+    renderMatches(matches);
+  } catch(e) {
+    document.getElementById('matches-grid').innerHTML = `
+      <div class="empty-state">
+        <i class="fa-solid fa-circle-exclamation" style="color:var(--pink)"></i>
+        <h3>Error al calcular</h3>
+        <p>${e.message}</p>
+      </div>`;
+  } finally {
+    btn.disabled  = false;
+    spinner.style.display = 'none';
+    icon.style.display    = 'inline';
+    txt.textContent       = 'Calcular Matches';
+  }
+}
+
+function getScoreClass(score) {
+  if (score >= 80) return 'score-excelente';
+  if (score >= 60) return 'score-bueno';
+  if (score >= 40) return 'score-regular';
+  return 'score-bajo';
+}
+
+function getBarColor(val) {
+  if (val >= 80) return 'var(--green)';
+  if (val >= 60) return 'var(--blue)';
+  if (val >= 40) return 'var(--orange)';
+  return 'var(--pink)';
+}
+
+function getRecomClass(recom) {
+  if (recom.includes('ALTA'))  return 'recom-alta';
+  if (recom.includes('MEDIA')) return 'recom-media';
+  return 'recom-baja';
+}
+
+function renderMatches(matches) {
+  const grid = document.getElementById('matches-grid');
+
+  if (!matches || matches.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <i class="fa-solid fa-face-frown-open"></i>
+        <h3>Sin matches encontrados</h3>
+        <p>No se encontraron empresas compatibles con el perfil de este estudiante.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = matches.map((m, idx) => {
+    const cls      = getScoreClass(m.score_final);
+    const desglose = m.desglose || {};
+    const recomCls = getRecomClass(m.recomendacion || '');
+
+    const desgloseHTML = Object.entries({
+      'Habilidades':    desglose.habilidades    ?? 0,
+      'Experiencia':    desglose.experiencia    ?? 0,
+      'Carrera':        desglose.carrera        ?? 0,
+      'Ubicación':      desglose.ubicacion      ?? 0,
+      'Disponibilidad': desglose.disponibilidad ?? 0,
+    }).map(([label, val]) => `
+      <div class="desglose-row">
+        <span class="desglose-label">${label}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${val}%;background:${getBarColor(val)};"></div>
+        </div>
+        <span class="desglose-val">${Math.round(val)}%</span>
+      </div>
+    `).join('');
+
+    return `
+    <div class="match-card ${cls}" style="animation:fadeUp .4s ease ${idx * .05}s both;">
+      <div class="match-top">
+        <div>
+          <div class="match-empresa">${m.empresa_nombre}</div>
+          <div class="match-area"><i class="fa-solid fa-tag fa-xs"></i> ${m.empresa_area}</div>
+        </div>
+        <div class="score-badge">${m.score_final}%</div>
+      </div>
+      <div class="desglose">${desgloseHTML}</div>
+      <div class="match-insight">
+        <i class="fa-solid fa-lightbulb fa-xs" style="color:var(--cyan);margin-right:4px;"></i>
+        ${m.insight || 'Match calculado correctamente.'}
+      </div>
+      <div class="match-footer">
+        <span class="recom-badge ${recomCls}">
+          <i class="fa-solid fa-circle-dot fa-xs"></i>
+          ${(m.recomendacion || 'Ver detalle').split(' - ')[0]}
+        </span>
+        <button class="btn-postular" onclick="postular(${m.empresa_id}, ${m.match_id || 'null'}, this)">
+          <i class="fa-solid fa-paper-plane fa-xs"></i> Postular
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function limpiarResultados() {
+  document.getElementById('results-header').style.display = 'none';
+  document.getElementById('select-estudiante').value = '';
+  document.getElementById('matches-grid').innerHTML = `
+    <div class="empty-state">
+      <i class="fa-solid fa-network-wired"></i>
+      <h3>Sin resultados aún</h3>
+      <p>Selecciona un estudiante y presiona "Calcular Matches" para ver las empresas más compatibles.</p>
+    </div>`;
+}
+
+let estudianteActualId = null; // agrégala junto a las otras variables globales
+
+// Y esta función:
+async function postular(empresaId, matchId, btn) {
+  if (!estudianteActualId) return;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin fa-xs"></i> Enviando...';
+
+  try {
+    const res  = await fetch(`${API}/api/postular`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        estudiante_id: estudianteActualId,
+        empresa_id:    empresaId,
+        match_id:      matchId,
+        prioridad:     'media'
+      })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      btn.innerHTML = '<i class="fa-solid fa-check fa-xs"></i> Postulado';
+      btn.style.background    = 'rgba(34,197,94,.12)';
+      btn.style.borderColor   = 'rgba(34,197,94,.3)';
+      btn.style.color         = '#86efac';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = data.error.includes('Ya existe') 
+        ? '<i class="fa-solid fa-check fa-xs"></i> Ya postulado'
+        : '<i class="fa-solid fa-paper-plane fa-xs"></i> Postular';
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane fa-xs"></i> Postular';
+  }
+}
+
+cargarEstudiantes();
+</script>
+</body>
+</html>

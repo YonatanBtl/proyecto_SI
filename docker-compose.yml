@@ -62,6 +62,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ./api:/app
+      - ./frontend:/frontend
       - ./data:/app/data
     depends_on:
       postgres:

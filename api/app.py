@@ -6,6 +6,7 @@ Versión Profesional: Agentes en archivos separados
 """
 
 from flask import Flask, request, jsonify
+from flask import send_from_directory
 from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -26,12 +27,28 @@ CORS(app)  # Permitir peticiones desde n8n y frontend
 # Configuración de base de datos
 DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://admin:admin123@postgres:5432/practicas_db')
 
+# Configuración de Rutas
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "../frontend")
+
 # Instanciar agentes
 matching_engine = MatchingEngine()
 nlp_analyzer = NLPAnalyzer()
 learning_system = LearningSystem()
 anomaly_detector = AnomalyDetector()
 monitor_agent = MonitorAgent()
+
+# Inicializar LearningSystem desde BD (carga pesos y historial previos)
+def inicializar_learning():
+    try:
+        conn = get_db_connection()
+        if conn:
+            learning_system.inicializar_desde_db(conn)
+            conn.close()
+    except Exception as e:
+        print(f"⚠️  LearningSystem sin datos previos: {e}")
+
+# Ejecutar inicializacion despues de definir get_db_connection
 
 def get_db_connection():
     """Obtiene conexión a PostgreSQL"""
@@ -575,7 +592,7 @@ def resumen_anomalias():
             'error': str(e)
         }), 500
 
-@app.route('/api/anomalias/<int:anomalia_id>/resolver', methods=['POST'])
+@app.route('/api/anomalias/<int:anomalia_id>/resolver', methods=['POST', 'PUT'])
 def resolver_anomalia(anomalia_id):
     """
     Marca una anomalía como resuelta
@@ -597,6 +614,84 @@ def resolver_anomalia(anomalia_id):
             'success': False,
             'error': str(e)
         }), 500
+
+# ============================================
+# ENDPOINT: Postular a una empresa
+# ============================================
+
+@app.route("/api/postular", methods=["POST"])
+def postular():
+    """
+    Registra la postulacion de un estudiante a una empresa.
+    Requiere: estudiante_id, empresa_id
+    Opcional: match_id, prioridad
+    """
+    try:
+        data          = request.json
+        estudiante_id = data.get("estudiante_id")
+        empresa_id    = data.get("empresa_id")
+        match_id      = data.get("match_id")
+        prioridad     = data.get("prioridad", "media")
+
+        if not estudiante_id or not empresa_id:
+            return jsonify({"success": False, "error": "estudiante_id y empresa_id son requeridos"}), 400
+
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+
+        # Verificar que no exista ya
+        cursor.execute("SELECT id FROM postulaciones WHERE estudiante_id = %s AND empresa_id = %s",
+                       (estudiante_id, empresa_id))
+        existente = cursor.fetchone()
+        if existente:
+            cursor.close(); conn.close()
+            return jsonify({"success": False, "error": "Ya existe una postulacion a esta empresa", "postulacion_id": existente["id"]}), 409
+
+        # Buscar match_id si no se envio
+        if not match_id:
+            cursor.execute("SELECT id FROM matches WHERE estudiante_id = %s AND empresa_id = %s ORDER BY score_final DESC LIMIT 1",
+                           (estudiante_id, empresa_id))
+            match_row = cursor.fetchone()
+            match_id  = match_row["id"] if match_row else None
+
+        # Insertar postulacion
+        cursor.execute("""
+            INSERT INTO postulaciones (estudiante_id, empresa_id, match_id, estado, prioridad)
+            VALUES (%s, %s, %s, 'postulado', %s)
+            RETURNING id
+        """, (estudiante_id, empresa_id, match_id, prioridad))
+
+        postulacion_id = cursor.fetchone()["id"]
+        conn.commit(); cursor.close(); conn.close()
+
+        return jsonify({"success": True, "postulacion_id": postulacion_id, "mensaje": "Postulacion registrada correctamente", "estado": "postulado"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/postulaciones/<int:estudiante_id>", methods=["GET"])
+def obtener_postulaciones(estudiante_id):
+    """Obtiene todas las postulaciones de un estudiante."""
+    try:
+        conn   = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT p.id, p.estado, p.prioridad, p.fecha_postulacion,
+                   e.nombre AS empresa_nombre, e.area AS empresa_area,
+                   e.salario, m.score_final
+            FROM postulaciones p
+            JOIN empresas e ON p.empresa_id = e.id
+            LEFT JOIN matches m ON p.match_id = m.id
+            WHERE p.estudiante_id = %s
+            ORDER BY p.fecha_postulacion DESC
+        """, (estudiante_id,))
+        postulaciones = cursor.fetchall()
+        cursor.close(); conn.close()
+        return jsonify({"success": True, "total": len(postulaciones), "postulaciones": [dict(p) for p in postulaciones]})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 # ============================================
 # ENDPOINT: Alertas y Monitoreo Avanzado
@@ -733,6 +828,26 @@ def estadisticas_aprendizaje():
         }), 500
 
 # ============================================
+# RUTAS 
+# ============================================
+
+#@app.route('/')
+#def index():
+ #   return send_from_directory('/frontend', 'index.html')
+
+#@app.route('/frontend/<path:filename>')
+#def frontend_files(filename):
+ #   return send_from_directory('/frontend', filename)
+
+@app.route('/')
+def index():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+@app.route('/<path:filename>')
+def serve_files(filename):
+    return send_from_directory(FRONTEND_DIR, filename)
+
+# ============================================
 # INICIAR SERVIDOR
 # ============================================
 
@@ -743,5 +858,8 @@ if __name__ == '__main__':
     print("📡 Servidor corriendo en: http://localhost:5000")
     print("🏥 Health check: http://localhost:5000/health")
     print("=" * 60)
+
+    # Inicializar LearningSystem con datos de BD
+    inicializar_learning()
     
     app.run(host='0.0.0.0', port=5000, debug=True)

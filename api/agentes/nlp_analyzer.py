@@ -113,19 +113,22 @@ class NLPAnalyzer:
         calidad_cv        = self._evaluar_calidad_cv(texto_cv, habilidades)
         completitud       = self._calcular_completitud(email, telefono, habilidades, meses_experiencia)
 
+        cargo = self._extraer_cargo(texto_cv, nombre)
+
         return {
-            'nombre':                   nombre,
-            'email':                    email,
-            'telefono':                 telefono,
-            'universidad':              universidad,
-            'habilidades':              sorted(list(habilidades)),
-            'num_habilidades':          len(habilidades),
-            'meses_experiencia':        meses_experiencia,
-            'nivel_ingles':             nivel_ingles,
-            'calidad_cv':               calidad_cv,
-            'completitud':              completitud,
+            'nombre':                    nombre,
+            'cargo':                     cargo,
+            'email':                     email,
+            'telefono':                  telefono,
+            'universidad':               universidad,
+            'habilidades':               sorted(list(habilidades)),
+            'num_habilidades':           len(habilidades),
+            'meses_experiencia':         meses_experiencia,
+            'nivel_ingles':              nivel_ingles,
+            'calidad_cv':                calidad_cv,
+            'completitud':               completitud,
             'organizaciones_detectadas': entidades.get('organizaciones', []),
-            'recomendaciones':          self._generar_recomendaciones(habilidades, email, telefono, calidad_cv)
+            'recomendaciones':           self._generar_recomendaciones(habilidades, email, telefono, calidad_cv)
         }
 
     # =========================================================
@@ -158,13 +161,50 @@ class NLPAnalyzer:
             'GPE':  'lugares'
         }
 
+        # Palabras que spaCy confunde como organizaciones en CVs:
+        # - Secciones del CV en mayúsculas: IDIOMAS, TECNICAS, CI, PERFIL
+        # - Librerías de programación: Pandas, Numpy, Scala
+        # - Palabras sueltas o muy cortas: "CI", "El", "La"
+        falsas_organizaciones = {
+            'idiomas', 'tecnicas', 'técnicas', 'ci', 'perfil', 'educacion',
+            'educación', 'experiencia', 'habilidades', 'proyectos', 'objetivo',
+            'certificaciones', 'miembro', 'apasionado', 'visualizacion',
+            'visualización', 'pandas', 'numpy', 'scala', 'python', 'java',
+            'github', 'gitlab', 'linux', 'windows', 'resumen', 'logros',
+            'referencias', 'actividades', 'voluntariado', 'intereses'
+        }
+
         vistas = set()
         for ent in doc.ents:
             clave     = mapa_etiquetas.get(ent.label_)
             texto_ent = ent.text.strip()
-            if clave and texto_ent and texto_ent not in vistas:
-                entidades[clave].append(texto_ent)
-                vistas.add(texto_ent)
+
+            if not clave or not texto_ent or texto_ent in vistas:
+                continue
+
+            # Filtros para organizaciones falsas
+            if clave == 'organizaciones':
+                texto_lower = texto_ent.lower()
+
+                # Ignorar palabras muy cortas (menos de 3 caracteres)
+                if len(texto_ent) < 3:
+                    continue
+
+                # Ignorar secciones del CV y librerías conocidas
+                if texto_lower in falsas_organizaciones:
+                    continue
+
+                # Ignorar si es completamente en mayúsculas y corto
+                # (son titulos de sección: "IDIOMAS", "CI", "TECNICAS")
+                if texto_ent.isupper() and len(texto_ent) <= 12:
+                    continue
+
+                # Ignorar si no tiene al menos 2 caracteres alfabéticos seguidos
+                if not re.search(r'[a-záéíóúñA-ZÁÉÍÓÚÑ]{2,}', texto_ent):
+                    continue
+
+            entidades[clave].append(texto_ent)
+            vistas.add(texto_ent)
 
         return entidades
 
@@ -175,21 +215,133 @@ class NLPAnalyzer:
     def _extraer_nombre(self, texto, entidades_spacy):
         """
         Extrae el nombre del candidato.
-        Prioridad: 1) spaCy PER  2) Heurística en primeras líneas
+        Prioridad:
+          1) spaCy PER limpio (quita cargos pegados)
+          2) Línea en mayúsculas de 2-4 palabras (ej: "EDGAR QUISPE")
+          3) Heurística en primeras líneas con capitalización normal
+
+        Casos que maneja:
+          - "Carlos Mendoza QuispeDesarrollador" → "Carlos Mendoza Quispe"
+          - "EDGAR QUISPE" (todo mayúsculas en DOCX con columnas) → "Edgar Quispe"
+          - Nombre en posición no estándar (DOCX con sidebar lateral)
         """
-        # 1. Primera persona detectada por spaCy
+        # Palabras de cargo que NO son parte del nombre
+        palabras_cargo = {
+            'desarrollador', 'ingeniero', 'analista', 'diseñador', 'gerente',
+            'coordinador', 'director', 'jefe', 'asistente', 'practicante',
+            'estudiante', 'consultor', 'programador', 'arquitecto', 'especialista',
+            'developer', 'engineer', 'manager', 'designer', 'analyst',
+            'software', 'senior', 'junior', 'fullstack', 'frontend', 'backend',
+            'contáctame', 'contactame', 'resumen', 'educación', 'educacion',
+            'experiencia', 'habilidades', 'idiomas', 'certificaciones', 'herramientas'
+        }
+
+        # 1. spaCy PER: limpiar cargos pegados al nombre
         personas = entidades_spacy.get('personas', [])
         if personas:
-            return personas[0]
+            candidato = personas[0].strip()
+            partes = re.findall(r'[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+', candidato)
+            nombre_limpio = []
+            for parte in partes:
+                if parte.lower() in palabras_cargo:
+                    break
+                nombre_limpio.append(parte)
+            if len(nombre_limpio) >= 2:
+                return ' '.join(nombre_limpio)
 
-        # 2. Heurística: buscar en las primeras 5 líneas una línea con nombre propio
+        # Buscar en TODAS las líneas del texto (DOCX con columnas tiene el nombre en posición variable)
         lineas = [l.strip() for l in texto.split('\n') if l.strip()]
-        patron_nombre = re.compile(r'^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?: [A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3}$')
-        for linea in lineas[:5]:
-            if patron_nombre.match(linea):
+
+        # 2. Buscar línea completamente en MAYÚSCULAS que parezca nombre (2-4 palabras)
+        # Ej: "EDGAR QUISPE", "CARLOS MENDOZA QUISPE"
+        patron_mayus = re.compile(r'^[A-ZÁÉÍÓÚÑ]{2,}(?: [A-ZÁÉÍÓÚÑ]{2,}){1,3}$')
+        for linea in lineas:
+            if patron_mayus.match(linea):
+                # Verificar que no sea un título de sección
+                if linea.lower() not in palabras_cargo and len(linea) < 50:
+                    # Convertir a Title Case: "EDGAR QUISPE" → "Edgar Quispe"
+                    return linea.title()
+
+        # 3. Heurística: 2-4 palabras con capitalización normal en primeras 8 líneas
+        patron_normal = re.compile(r'^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?: [A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3}$')
+        for linea in lineas[:8]:
+            if any(p in linea.lower() for p in palabras_cargo):
+                continue
+            if patron_normal.match(linea):
                 return linea
 
         return 'No detectado'
+
+    # =========================================================
+    # EXTRAER CARGO DEL CANDIDATO
+    # =========================================================
+
+    def _extraer_cargo(self, texto, nombre_detectado):
+        """
+        Extrae el cargo/título profesional del candidato.
+
+        Estrategia: buscar la línea inmediatamente después del nombre.
+        En la mayoría de CVs bien estructurados el cargo va justo debajo:
+          Carlos Mendoza Quispe
+          Desarrollador Full Stack   ← esto extraemos
+
+        Si no encuentra nada confiable, retorna None para no mostrar nada.
+        """
+        if not nombre_detectado or nombre_detectado == 'No detectado':
+            return None
+
+        # Palabras que indican que es un cargo (no una sección ni dato de contacto)
+        palabras_cargo = {
+            'desarrollador', 'ingeniero', 'analista', 'diseñador', 'gerente',
+            'coordinador', 'director', 'jefe', 'asistente', 'practicante',
+            'consultor', 'programador', 'arquitecto', 'especialista', 'técnico',
+            'developer', 'engineer', 'manager', 'designer', 'analyst', 'architect',
+            'scientist', 'lead', 'senior', 'junior', 'fullstack', 'frontend',
+            'backend', 'devops', 'data', 'bi', 'business', 'intelligence',
+            'marketing', 'ventas', 'finanzas', 'contable', 'administrativo',
+            'sistemas', 'redes', 'seguridad', 'soporte', 'qa', 'tester', 'data','Analista'
+        }
+
+        # Palabras que indican que NO es un cargo (secciones, datos de contacto)
+        no_es_cargo = {
+            'email', 'teléfono', 'telefono', 'linkedin', 'github', 'http',
+            'www', '@', 'lima', 'perú', 'peru', 'chorrillos', 'miraflores',
+            'educación', 'educacion', 'experiencia', 'habilidades', 'idiomas',
+            'certificaciones', 'proyectos', 'contacto', 'contáctame', 'perfil',
+            'resumen', 'objetivo', 'referencias', 'herramientas'
+        }
+
+        lineas = [l.strip() for l in texto.split('\n') if l.strip()]
+
+        # Buscar el nombre en las líneas y tomar la siguiente línea válida
+        nombre_lower = nombre_detectado.lower()
+        for i, linea in enumerate(lineas):
+            # ¿Esta línea contiene el nombre detectado?
+            if nombre_lower in linea.lower() or linea.upper() == nombre_detectado.upper():
+                # Revisar las siguientes 3 líneas buscando el cargo
+                for j in range(i + 1, min(i + 4, len(lineas))):
+                    candidato = lineas[j].strip()
+                    candidato_lower = candidato.lower()
+
+                    # Ignorar líneas muy largas (párrafos, no cargos)
+                    if len(candidato) > 60:
+                        continue
+
+                    # Ignorar líneas con datos de contacto o secciones
+                    if any(p in candidato_lower for p in no_es_cargo):
+                        continue
+
+                    # Ignorar líneas con números (teléfonos, fechas)
+                    if re.search(r'\d{4,}', candidato):
+                        continue
+
+                    # ¿Contiene al menos una palabra de cargo?
+                    palabras = candidato_lower.split()
+                    if any(p in palabras_cargo for p in palabras):
+                        # Limpiar y retornar
+                        return candidato.strip()
+
+        return None
 
     # =========================================================
     # EXTRAER HABILIDADES TÉCNICAS
@@ -277,7 +429,27 @@ class NLPAnalyzer:
             if 0 < meses < 600:
                 total_meses += meses
 
-        # Patrón 2: año - año  (ej: "2020 - 2023") — fallback
+        # Patrón 2: MM/YYYY – MM/YYYY  (ej: "09/2023 – 09/2024", "03/2022-11/2022")
+        # Muy común en CVs peruanos con formato numérico de fecha
+        patron_mmyyyy = (
+            r'(\d{1,2})/(\d{4})\s*[-–]\s*'
+            r'(\d{1,2})/(\d{4}|presente|actualidad|actual)'
+        )
+        for m in re.finditer(patron_mmyyyy, texto_lower):
+            mes_ini = int(m.group(1))
+            año_ini = int(m.group(2))
+            fin_str = m.group(4)
+            if fin_str in ('presente', 'actualidad', 'actual'):
+                mes_fin = mes_actual
+                año_fin = año_actual
+            else:
+                mes_fin = int(m.group(3))
+                año_fin = int(fin_str)
+            meses = (año_fin - año_ini) * 12 + (mes_fin - mes_ini)
+            if 0 < meses < 600:
+                total_meses += meses
+
+        # Patrón 3: año - año  (ej: "2020 - 2023") — fallback
         if total_meses == 0:
             patron_año = r'(\d{4})\s*[-–]\s*(\d{4}|presente|actualidad|actual)'
             for m in re.finditer(patron_año, texto_lower):
