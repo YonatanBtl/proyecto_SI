@@ -455,7 +455,7 @@ def guardar_csv(datos, nombre_archivo, campos):
         # Solo escribir los campos especificados
         for fila in datos:
             writer.writerow({k: fila.get(k, '') for k in campos})
-    print(f"✅ '{nombre_archivo}' creado con {len(datos)} registros")
+    print(f"  '{nombre_archivo}' creado con {len(datos)} registros")
 
 
 # ============================================
@@ -467,19 +467,19 @@ if __name__ == '__main__':
     print("GENERADOR DE DATASET")
     print("=" * 60)
 
-    print(f"\n📊 Generando {NUM_ESTUDIANTES} estudiantes...")
+    print(f"\n  Generando {NUM_ESTUDIANTES} estudiantes...")
     estudiantes = generar_estudiantes(NUM_ESTUDIANTES)
 
-    print(f"📊 Generando {NUM_EMPRESAS} empresas...")
+    print(f"  Generando {NUM_EMPRESAS} empresas...")
     empresas = generar_empresas(NUM_EMPRESAS)
 
-    print(f"📊 Generando matches...")
+    print(f"  Generando matches...")
     matches = generar_matches(estudiantes, empresas, num_matches=300)
 
-    print(f"📊 Generando postulaciones...")
+    print(f"  Generando postulaciones...")
     postulaciones = generar_postulaciones(matches, num_postulaciones=150)
 
-    print("\n💾 Guardando archivos CSV...")
+    print("\n  Guardando archivos CSV...")
 
     guardar_csv(estudiantes, 'estudiantes.csv', [
         'nombre', 'email', 'telefono', 'carrera', 'universidad',
@@ -505,12 +505,12 @@ if __name__ == '__main__':
     ])
 
     print("\n" + "=" * 60)
-    print("✅ DATASET GENERADO EXITOSAMENTE")
+    print("  DATASET GENERADO EXITOSAMENTE")
     print("=" * 60)
-    print(f"  👤 {len(estudiantes)} estudiantes  → estudiantes.csv")
-    print(f"  🏢 {len(empresas)} empresas       → empresas.csv")
-    print(f"  🔗 {len(matches)} matches         → matches.csv")
-    print(f"  📨 {len(postulaciones)} postulaciones → postulaciones.csv")
-    print("\n💡 Ahora ejecuta:")
+    print(f"    {len(estudiantes)} estudiantes  → estudiantes.csv")
+    print(f"    {len(empresas)} empresas       → empresas.csv")
+    print(f"    {len(matches)} matches         → matches.csv")
+    print(f"    {len(postulaciones)} postulaciones → postulaciones.csv")
+    print("\n  Ahora ejecuta:")
     print("   python cargar_dataset.py")
     print("=" * 60)

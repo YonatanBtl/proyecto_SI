@@ -16,11 +16,11 @@ DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://admin:admin123@localhost:
 def conectar_bd():
     try:
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-        print("✅ Conexión a base de datos exitosa")
+        print("Conexión a base de datos exitosa")
         return conn
     except Exception as e:
-        print(f"❌ Error conectando a BD: {e}")
-        print("\n💡 Asegúrate de que Docker esté corriendo: docker-compose up -d")
+        print(f"Error conectando a BD: {e}")
+        print("\n Asegúrate de que Docker esté corriendo: docker-compose up -d")
         return None
 
 
@@ -40,9 +40,9 @@ def limpiar_tablas(conn):
         cursor.execute("ALTER SEQUENCE matches_id_seq RESTART WITH 1")
         cursor.execute("ALTER SEQUENCE postulaciones_id_seq RESTART WITH 1")
         conn.commit()
-        print("✅ Tablas limpiadas")
+        print("Tablas limpiadas")
     except Exception as e:
-        print(f"⚠️ Error limpiando tablas: {e}")
+        print(f"Error limpiando tablas: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -50,7 +50,7 @@ def limpiar_tablas(conn):
 
 def cargar_empresas(conn, archivo='empresas.csv'):
     cursor = conn.cursor()
-    print(f"\n📊 Cargando empresas desde {archivo}...")
+    print(f"\nCargando empresas desde {archivo}...")
 
     with open(archivo, 'r', encoding='utf-8') as f:
         empresas = list(csv.DictReader(f))
@@ -79,9 +79,9 @@ def cargar_empresas(conn, archivo='empresas.csv'):
     try:
         execute_batch(cursor, query, datos, page_size=100)
         conn.commit()
-        print(f"✅ {len(datos)} empresas cargadas")
+        print(f"{len(datos)} empresas cargadas")
     except Exception as e:
-        print(f"❌ Error cargando empresas: {e}")
+        print(f"Error cargando empresas: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -89,7 +89,7 @@ def cargar_empresas(conn, archivo='empresas.csv'):
 
 def cargar_estudiantes(conn, archivo='estudiantes.csv'):
     cursor = conn.cursor()
-    print(f"\n📊 Cargando estudiantes desde {archivo}...")
+    print(f"\nCargando estudiantes desde {archivo}...")
 
     with open(archivo, 'r', encoding='utf-8') as f:
         estudiantes = list(csv.DictReader(f))
@@ -125,9 +125,9 @@ def cargar_estudiantes(conn, archivo='estudiantes.csv'):
     try:
         execute_batch(cursor, query, datos, page_size=100)
         conn.commit()
-        print(f"✅ {len(datos)} estudiantes cargados")
+        print(f"{len(datos)} estudiantes cargados")
     except Exception as e:
-        print(f"❌ Error cargando estudiantes: {e}")
+        print(f"Error cargando estudiantes: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -136,7 +136,7 @@ def cargar_estudiantes(conn, archivo='estudiantes.csv'):
 def cargar_matches(conn, archivo='matches.csv'):
     """Carga matches resolviendo IDs por email/nombre"""
     cursor = conn.cursor()
-    print(f"\n📊 Cargando matches desde {archivo}...")
+    print(f"\nCargando matches desde {archivo}...")
 
     # Construir mapas email→id y nombre→id
     cursor.execute("SELECT id, email FROM estudiantes")
@@ -184,9 +184,9 @@ def cargar_matches(conn, archivo='matches.csv'):
     try:
         execute_batch(cursor, query, datos, page_size=100)
         conn.commit()
-        print(f"✅ {len(datos)} matches cargados ({omitidos} omitidos por ID no encontrado)")
+        print(f"{len(datos)} matches cargados ({omitidos} omitidos por ID no encontrado)")
     except Exception as e:
-        print(f"❌ Error cargando matches: {e}")
+        print(f"Error cargando matches: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -195,7 +195,7 @@ def cargar_matches(conn, archivo='matches.csv'):
 def cargar_postulaciones(conn, archivo='postulaciones.csv'):
     """Carga postulaciones resolviendo IDs por email/nombre"""
     cursor = conn.cursor()
-    print(f"\n📊 Cargando postulaciones desde {archivo}...")
+    print(f"\nCargando postulaciones desde {archivo}...")
 
     cursor.execute("SELECT id, email FROM estudiantes")
     mapa_est = {r['email']: r['id'] for r in cursor.fetchall()}
@@ -240,9 +240,9 @@ def cargar_postulaciones(conn, archivo='postulaciones.csv'):
     try:
         execute_batch(cursor, query, datos, page_size=100)
         conn.commit()
-        print(f"✅ {len(datos)} postulaciones cargadas ({omitidos} omitidas)")
+        print(f"{len(datos)} postulaciones cargadas ({omitidos} omitidas)")
     except Exception as e:
-        print(f"❌ Error cargando postulaciones: {e}")
+        print(f"Error cargando postulaciones: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -251,24 +251,24 @@ def cargar_postulaciones(conn, archivo='postulaciones.csv'):
 def verificar_carga(conn):
     cursor = conn.cursor()
     print("\n" + "=" * 60)
-    print("📊 RESUMEN DE CARGA")
+    print("RESUMEN DE CARGA")
     print("=" * 60)
 
     for tabla in ['estudiantes', 'empresas', 'matches', 'postulaciones']:
         cursor.execute(f"SELECT COUNT(*) as total FROM {tabla}")
         total = cursor.fetchone()['total']
-        print(f"  ✅ {tabla}: {total} registros")
+        print(f"   {tabla}: {total} registros")
 
     # Tasa de éxito
     cursor.execute("SELECT estado, COUNT(*) as total FROM postulaciones GROUP BY estado ORDER BY total DESC")
-    print("\n  📋 Postulaciones por estado:")
+    print("\n   Postulaciones por estado:")
     for row in cursor.fetchall():
         print(f"     {row['estado']}: {row['total']}")
 
     # Score promedio
     cursor.execute("SELECT ROUND(AVG(score_final)::numeric, 2) as avg FROM matches")
     avg = cursor.fetchone()['avg']
-    print(f"\n  🎯 Score promedio de matches: {avg}")
+    print(f"\n   Score promedio de matches: {avg}")
 
     cursor.close()
     print("=" * 60)
@@ -283,7 +283,7 @@ def main():
     if not conn:
         return
 
-    print("\n⚠️  ¿Limpiar tablas antes de cargar? (s/n)")
+    print("\n ¿Limpiar tablas antes de cargar? (s/n)")
     respuesta = input("   Esto borrará TODOS los datos existentes: ").lower()
     if respuesta == 's':
         limpiar_tablas(conn)
@@ -295,18 +295,18 @@ def main():
     if os.path.exists('matches.csv'):
         cargar_matches(conn)
     else:
-        print("\n⚠️  matches.csv no encontrado, omitiendo...")
+        print("\n  matches.csv no encontrado, omitiendo...")
 
     if os.path.exists('postulaciones.csv'):
         cargar_postulaciones(conn)
     else:
-        print("\n⚠️  postulaciones.csv no encontrado, omitiendo...")
+        print("\n  postulaciones.csv no encontrado, omitiendo...")
 
     verificar_carga(conn)
     conn.close()
 
-    print("\n✅ Proceso completado")
-    print("💡 Prueba los endpoints:")
+    print("\n Proceso completado")
+    print("   Prueba los endpoints:")
     print("   Invoke-RestMethod http://localhost:5000/api/kpis")
     print("   Invoke-RestMethod http://localhost:5000/api/empresas")
 

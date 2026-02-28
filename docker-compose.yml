@@ -23,6 +23,26 @@ services:
       timeout: 5s
       retries: 5
 
+  # pgAdmin - Interfaz visual para PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: practicas_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@practicamatch.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: 512m
+    mem_reservation: 256m
+    restart: unless-stopped
+
   # n8n - Orquestador
   n8n:
     image: n8nio/n8n:latest
@@ -74,6 +94,7 @@ services:
 volumes:
   postgres_data:
   n8n_data:
+  pgadmin_data:
 
 networks:
   default:

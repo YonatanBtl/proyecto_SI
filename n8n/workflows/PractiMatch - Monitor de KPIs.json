@@ -1,0 +1,187 @@
+{
+  "name": "PractiMatch - Monitor de KPIs",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "e93e086d-7a10-424a-b806-888d9b78c65f",
+      "name": "Cada 30 minutos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://practicas_api:5000/api/kpis",
+        "options": {}
+      },
+      "id": "39abf2f6-de36-4a30-9f4a-44644ac03220",
+      "name": "Obtener KPIs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -448,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-tasa",
+              "leftValue": "={{ $json.kpis.tasa_exito }}",
+              "rightValue": 20,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            },
+            {
+              "id": "cond-anomalias",
+              "leftValue": "={{ $json.kpis.anomalias_criticas }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "b7fcc40a-a1d2-441e-b27c-b7d420484ec6",
+      "name": "¿Requiere Alerta?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://practicas_api:5000/api/alertas",
+        "options": {}
+      },
+      "id": "022361cb-5c27-42f3-8059-f6144d4f4b42",
+      "name": "Registrar Alertas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const kpis = $('Obtener KPIs').first().json.kpis;\nconst ahora = new Date().toISOString();\n\nconsole.log(`[${ahora}] ✅ Sistema OK - Tasa éxito: ${kpis.tasa_exito}% | Matches: ${kpis.total_matches}`);\n\nreturn [{ json: { status: 'ok', timestamp: ahora, kpis } }];"
+      },
+      "id": "f283d603-cc5c-4e09-a719-612e775f8649",
+      "name": "Sistema OK",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const kpis = $('Obtener KPIs').first().json.kpis;\nconst alertas = $input.first().json.alertas || [];\nconst ahora = new Date().toISOString();\n\nconsole.log(`[${ahora}] ⚠️ ALERTA - Tasa éxito: ${kpis.tasa_exito}% | Anomalías críticas: ${kpis.anomalias_criticas}`);\nconsole.log(`Total alertas generadas: ${alertas.length}`);\n\nreturn [{ \n  json: { \n    status: 'alerta',\n    timestamp: ahora,\n    motivo: kpis.tasa_exito < 20 ? 'Tasa de éxito crítica' : 'Demasiadas anomalías críticas',\n    kpis,\n    alertas \n  } \n}];"
+      },
+      "id": "e4130f13-6836-41cd-90b4-19e606b09723",
+      "name": "Procesar Alerta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cada 30 minutos": {
+      "main": [
+        [
+          {
+            "node": "Obtener KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener KPIs": {
+      "main": [
+        [
+          {
+            "node": "¿Requiere Alerta?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Requiere Alerta?": {
+      "main": [
+        [
+          {
+            "node": "Registrar Alertas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sistema OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar Alertas": {
+      "main": [
+        [
+          {
+            "node": "Procesar Alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3e1c7c0d-8a5b-4df5-9459-196009623163",
+  "meta": {
+    "instanceId": "123a7661f072971434fd022b9d6787af01f0df71d9d91725294e69dee6c9bea8"
+  },
+  "id": "SVfHebP3RHECizaC",
+  "tags": []
+}

@@ -1,0 +1,177 @@
+{
+  "name": "PractiMatch - Detección de Anomalías",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "6ab35ccf-75b8-4b18-ad55-d9dc7a7025e7",
+      "name": "Cada 1 hora",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://practicas_api:5000/api/detectar-anomalias",
+        "options": {}
+      },
+      "id": "70c45d3b-afa8-43e0-860e-75966e09e7d7",
+      "name": "Detectar Anomalías",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -448,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-criticas",
+              "leftValue": "={{ $json.por_severidad.criticas }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "763c8fa9-09d8-473a-a9ea-9fe967cc0022",
+      "name": "¿Hay Críticas?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Detectar Anomalías').first().json;\nconst ahora = new Date().toISOString();\nconst criticas = data.anomalias.filter(a => a.severidad === 'critica');\nconsole.log(`[${ahora}] ANOMALIAS CRITICAS: ${criticas.length}`);\nreturn [{ json: { timestamp: ahora, total: data.total_anomalias, criticas: criticas.length, detalle: criticas } }];"
+      },
+      "id": "5ba96e14-e455-4adb-b09f-c13313622b5d",
+      "name": "Procesar Críticas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Detectar Anomalías').first().json;\nconst ahora = new Date().toISOString();\nconsole.log(`[${ahora}] Sin anomalias criticas`);\nreturn [{ json: { timestamp: ahora, status: 'sin_criticas', resumen: data.por_severidad } }];"
+      },
+      "id": "704aebb0-a460-4ba1-a5a7-d4cc19cc113d",
+      "name": "Sin Críticas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst nivel = input.criticas >= 3 ? 'CRITICO' : 'ALTO';\nreturn [{ json: { ...input, nivel_riesgo: nivel, accion: nivel === 'CRITICO' ? 'Revision inmediata' : 'Monitorear' } }];"
+      },
+      "id": "7709a314-107c-4352-af5e-9b4fa79e972a",
+      "name": "Clasificar Riesgo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cada 1 hora": {
+      "main": [
+        [
+          {
+            "node": "Detectar Anomalías",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detectar Anomalías": {
+      "main": [
+        [
+          {
+            "node": "¿Hay Críticas?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay Críticas?": {
+      "main": [
+        [
+          {
+            "node": "Procesar Críticas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sin Críticas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar Críticas": {
+      "main": [
+        [
+          {
+            "node": "Clasificar Riesgo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1a31010c-da04-4fbd-a40f-ab56f7e2cbe2",
+  "meta": {
+    "instanceId": "123a7661f072971434fd022b9d6787af01f0df71d9d91725294e69dee6c9bea8"
+  },
+  "id": "aJvHAvgHK6NT8Kzc",
+  "tags": []
+}

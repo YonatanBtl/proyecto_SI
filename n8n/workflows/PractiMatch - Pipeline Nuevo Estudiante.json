@@ -1,0 +1,149 @@
+{
+  "name": "PractiMatch - Pipeline Nuevo Estudiante",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nuevo-estudiante",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a55ba211-b472-4c53-9093-4edf19f8b902",
+      "name": "Webhook: Nuevo Estudiante",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "practicamatch-nuevo-estudiante"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\n\n// Validar que vengan los datos mínimos\nif (!body.estudiante_id) {\n  throw new Error('estudiante_id es requerido');\n}\n\nconsole.log(`Nuevo estudiante recibido: ID ${body.estudiante_id}`);\n\nreturn [{ json: { estudiante_id: body.estudiante_id, nombre: body.nombre || 'Sin nombre', timestamp: new Date().toISOString() } }];"
+      },
+      "id": "588679c2-e74d-4634-be6e-12bf63ef5ad2",
+      "name": "Validar Datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://practicas_api:5000/api/calcular-matches",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ estudiante_id: $json.estudiante_id }) }}",
+        "options": {}
+      },
+      "id": "a7bfda4c-08b1-4073-bb07-89687f381ba3",
+      "name": "Calcular Matches",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const matchData = $('Calcular Matches').first().json;\nconst estudianteData = $('Validar Datos').first().json;\nconst ahora = new Date().toISOString();\n\nconst topMatches = (matchData.matches || []).slice(0, 3).map(m => ({\n  empresa: m.empresa_nombre,\n  area: m.empresa_area,\n  score: m.score_final\n}));\n\nconsole.log(`Matches calculados para estudiante ${estudianteData.estudiante_id}: ${matchData.num_matches} empresas compatibles`);\ntopMatches.forEach((m, i) => console.log(`  ${i+1}. ${m.empresa} - Score: ${m.score}%`));\n\nreturn [{ \n  json: { \n    timestamp: ahora,\n    estudiante_id: estudianteData.estudiante_id,\n    nombre: estudianteData.nombre,\n    total_matches: matchData.num_matches,\n    top_3_empresas: topMatches,\n    status: 'matches_calculados'\n  } \n}];"
+      },
+      "id": "bdd68cba-ded3-4df1-927e-86e504ed27b4",
+      "name": "Procesar Matches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "3158123c-1cfe-4cdd-b25c-ecdf74ccc81f",
+      "name": "Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        880,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook: Nuevo Estudiante": {
+      "main": [
+        [
+          {
+            "node": "Validar Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Datos": {
+      "main": [
+        [
+          {
+            "node": "Calcular Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular Matches": {
+      "main": [
+        [
+          {
+            "node": "Procesar Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar Matches": {
+      "main": [
+        [
+          {
+            "node": "Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "138c315c-643f-488c-a943-00fc3ed5604f",
+  "meta": {
+    "instanceId": "123a7661f072971434fd022b9d6787af01f0df71d9d91725294e69dee6c9bea8"
+  },
+  "id": "VGh7Xle9BGv2oTgT",
+  "tags": []
+}

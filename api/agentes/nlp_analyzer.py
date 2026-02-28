@@ -20,9 +20,9 @@ class NLPAnalyzer:
         # Cargar modelo spaCy para español
         try:
             self.nlp = spacy.load("es_core_news_sm")
-            print("✅ Modelo spaCy cargado correctamente")
+            print("Modelo spaCy cargado correctamente")
         except Exception:
-            print("⚠️  spaCy no encontrado. Ejecuta: python -m spacy download es_core_news_sm")
+            print("spaCy no encontrado. Ejecuta: python -m spacy download es_core_news_sm")
             self.nlp = None
 
         # Base de conocimiento de habilidades técnicas
@@ -578,18 +578,18 @@ class NLPAnalyzer:
         recomendaciones = []
 
         if not email:
-            recomendaciones.append("⚠️ Agrega tu email de contacto")
+            recomendaciones.append("Agrega tu email de contacto")
         if not telefono:
-            recomendaciones.append("⚠️ Agrega tu número de teléfono")
+            recomendaciones.append("Agrega tu número de teléfono")
         if len(habilidades) < 5:
-            recomendaciones.append("💡 Agrega más habilidades técnicas (mínimo 5 recomendadas)")
+            recomendaciones.append("Agrega más habilidades técnicas (mínimo 5 recomendadas)")
         if calidad_cv < 50:
-            recomendaciones.append("📝 Mejora la estructura: agrega secciones claras (Educación, Experiencia, Habilidades)")
+            recomendaciones.append("Mejora la estructura: agrega secciones claras (Educación, Experiencia, Habilidades)")
         elif calidad_cv < 70:
-            recomendaciones.append("📝 Considera agregar una sección de Proyectos o Certificaciones")
+            recomendaciones.append("Considera agregar una sección de Proyectos o Certificaciones")
 
         if not recomendaciones:
-            recomendaciones.append("✅ Tu CV está bien estructurado")
+            recomendaciones.append("Tu CV está bien estructurado")
 
         return recomendaciones
 
@@ -634,7 +634,7 @@ class NLPAnalyzer:
                         texto += contenido + "\n"
             return texto.strip()
         except Exception as e:
-            print(f"❌ Error leyendo PDF: {e}")
+            print(f"Error leyendo PDF: {e}")
             return ""
 
     def _leer_docx(self, ruta_docx):
@@ -644,5 +644,5 @@ class NLPAnalyzer:
             texto = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
             return texto.strip()
         except Exception as e:
-            print(f"❌ Error leyendo DOCX: {e}")
+            print(f"Error leyendo DOCX: {e}")
             return ""

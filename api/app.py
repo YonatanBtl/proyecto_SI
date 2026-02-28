@@ -700,23 +700,55 @@ def obtener_postulaciones(estudiante_id):
 @app.route('/api/alertas', methods=['GET'])
 def obtener_alertas():
     """
-    Genera alertas basadas en los KPIs actuales
+    Genera alertas basadas en los KPIs actuales y las persiste en BD
     """
     try:
         conn = get_db_connection()
-        
+        cursor = conn.cursor()
+
         # Obtener KPIs actuales
         kpis = monitor_agent.calcular_kpis_completos(conn)
-        
+
         # Generar alertas basadas en KPIs
         alertas = monitor_agent.generar_alertas_rendimiento(kpis)
-        
+
+        # Persistir cada alerta solo si no existe una igual en las últimas 24 horas
+        for alerta in alertas:
+            cursor.execute("""
+                SELECT id FROM alertas 
+                WHERE tipo = %s 
+                AND fecha > NOW() - INTERVAL '24 hours'
+                LIMIT 1
+            """, (alerta.get('tipo', 'sistema'),))
+            
+            existe = cursor.fetchone()
+            if not existe:
+                cursor.execute("""
+                    INSERT INTO alertas (tipo, severidad, mensaje, kpi_valor, resuelta)
+                    VALUES (%s, %s, %s, %s, FALSE)
+                """, (
+                    alerta.get('tipo', 'sistema'),
+                    alerta.get('severidad', 'media'),
+                    alerta.get('mensaje', str(alerta)),
+                    alerta.get('valor', None)
+                ))
+        conn.commit()
+
+        # Retornar historial completo de alertas desde BD
+        cursor.execute("""
+            SELECT * FROM alertas 
+            ORDER BY fecha DESC 
+            LIMIT 50
+        """)
+        historial = cursor.fetchall()
+
         conn.close()
-        
+
         return jsonify({
             'success': True,
             'total_alertas': len(alertas),
-            'alertas': alertas
+            'alertas': alertas,
+            'historial': historial
         })
     except Exception as e:
         return jsonify({
@@ -830,14 +862,6 @@ def estadisticas_aprendizaje():
 # ============================================
 # RUTAS 
 # ============================================
-
-#@app.route('/')
-#def index():
- #   return send_from_directory('/frontend', 'index.html')
-
-#@app.route('/frontend/<path:filename>')
-#def frontend_files(filename):
- #   return send_from_directory('/frontend', filename)
 
 @app.route('/')
 def index():
