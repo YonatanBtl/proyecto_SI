@@ -29,7 +29,7 @@ class AnomalyDetector:
             try:
                 anomalias.extend(metodo(db_conn))
             except Exception as e:
-                print(f"⚠️ Error en {metodo.__name__}: {e}")
+                print(f" Error en {metodo.__name__}: {e}")
 
         for anomalia in anomalias:
             self._guardar_anomalia_db(anomalia, db_conn)
@@ -245,6 +245,6 @@ class AnomalyDetector:
         ])
         return {
             'destinatario': destinatario,
-            'asunto': f"🚨 {len(criticas)} Anomalías Detectadas en el Sistema",
-            'contenido_html': f"<h2>🚨 Alertas de Anomalías</h2><ul>{items}</ul>"
+            'asunto': f" {len(criticas)} Anomalías Detectadas en el Sistema",
+            'contenido_html': f"<h2> Alertas de Anomalías</h2><ul>{items}</ul>"
         }

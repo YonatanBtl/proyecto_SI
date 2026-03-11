@@ -87,10 +87,8 @@ class NLPAnalyzer:
     def analizar_cv_completo(self, texto_cv):
         """
         Análisis completo del CV usando spaCy + regex.
-
         Args:
             texto_cv (str): Texto extraído del CV
-
         Returns:
             dict: Información estructurada del CV
         """
@@ -161,10 +159,6 @@ class NLPAnalyzer:
             'GPE':  'lugares'
         }
 
-        # Palabras que spaCy confunde como organizaciones en CVs:
-        # - Secciones del CV en mayúsculas: IDIOMAS, TECNICAS, CI, PERFIL
-        # - Librerías de programación: Pandas, Numpy, Scala
-        # - Palabras sueltas o muy cortas: "CI", "El", "La"
         falsas_organizaciones = {
             'idiomas', 'tecnicas', 'técnicas', 'ci', 'perfil', 'educacion',
             'educación', 'experiencia', 'habilidades', 'proyectos', 'objetivo',

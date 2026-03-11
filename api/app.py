@@ -46,7 +46,7 @@ def inicializar_learning():
             learning_system.inicializar_desde_db(conn)
             conn.close()
     except Exception as e:
-        print(f"⚠️  LearningSystem sin datos previos: {e}")
+        print(f" LearningSystem sin datos previos: {e}")
 
 # Ejecutar inicializacion despues de definir get_db_connection
 
@@ -56,7 +56,7 @@ def get_db_connection():
         conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
         return conn
     except Exception as e:
-        print(f"❌ Error conectando a BD: {e}")
+        print(f" Error conectando a BD: {e}")
         return None
 
 # ============================================
@@ -253,7 +253,7 @@ def subir_cv():
                     estudiante_id = row['id'] if row else None
                     conn.commit()
                 except Exception as db_err:
-                    print(f"⚠️ Error guardando estudiante: {db_err}")
+                    print(f" Error guardando estudiante: {db_err}")
                 finally:
                     cursor.close()
                     conn.close()
